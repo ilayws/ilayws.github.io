@@ -1,0 +1,40 @@
+
+h1 {
+    text-align: center;
+}
+
+.Container {
+    max-width: fit-content;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.Container2 {
+    max-width: 70%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.link {
+    color: black;
+    text-decoration: none;
+}
+
+.link:visited {
+    color: black;
+}
+
+.link:hover {
+    color: rgb(111, 111, 111)
+}
+
+#pdfEmbed {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.prIm {
+    border-radius: 4px;
+    width: 40%;
+    
+}
