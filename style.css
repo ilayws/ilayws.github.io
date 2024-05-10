@@ -28,6 +28,18 @@ h1 {
     color: rgb(111, 111, 111)
 }
 
+.link2 {
+    color: black;
+}
+
+.link2:visited {
+    color: black;
+}
+
+.link2:hover {
+    color: rgb(111, 111, 111)
+}
+
 #pdfEmbed {
     margin-left: auto;
     margin-right: auto;
