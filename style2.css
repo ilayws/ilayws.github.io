@@ -22,13 +22,11 @@ header {
     padding-bottom: 20px;
 }
 
-
 .name {
     padding: 50px;
     text-align: left;
     padding-bottom: 20px;
 }
-
 
 header h1 {
     font-size: 64px;
@@ -103,7 +101,6 @@ footer {
     font-size: 14px;
 }
 
-
 .home-button {
     font-size: 24px;
     color: #ffffff;
@@ -157,7 +154,6 @@ footer {
 
 .notebook-card h3 {
     font-size: 20px;
-    /* font-family: "Computer Modern"; */
     margin-bottom: 10px;
     color: #ffffff;
 }
@@ -165,7 +161,6 @@ footer {
 .notebook-card a {
     color: #ffffff;
     font-weight: 700;
-    
     text-decoration: none;
     transition: color 0.3s ease;
 }
@@ -200,7 +195,6 @@ footer {
 }
 
 /* Projects Section  --------------------- */
-/* Projects Section */
 .projects-section {
     padding: 50px 150px; /* Increased padding on left and right */
     text-align: left;
@@ -245,4 +239,72 @@ footer {
 /* Additional spacing */
 .projects-section .project + .project {
     margin-top: 100px; /* Space between adjacent projects */
+}
+
+/* Media Queries for Responsive Design */
+@media (max-width: 1200px) {
+    .projects-section {
+        padding: 50px 100px; /* Adjust padding for medium screens */
+    }
+
+    .project-image {
+        width: 40%; /* Adjust image size for medium screens */
+    }
+}
+
+@media (max-width: 768px) {
+    header, .name {
+        padding: 30px; /* Less padding for smaller screens */
+    }
+
+    .menu-section {
+        margin-left: 30px; /* Adjust margin */
+    }
+
+    .projects-section {
+        padding: 30px 20px; /* Less padding for smaller screens */
+    }
+
+    .project {
+        margin-bottom: 40px; /* Less space between projects */
+    }
+
+    .project h3 a {
+        font-size: 20px; /* Smaller title font size */
+    }
+
+    .project p {
+        font-size: 16px; /* Smaller paragraph font size */
+    }
+
+    .project-image {
+        width: 90%; /* Make image full width on small screens */
+        margin: 0 auto; /* Center the image */
+    }
+}
+
+@media (max-width: 480px) {
+    header h1 {
+        font-size: 36px; /* Smaller header font size */
+    }
+
+    .menu-section li {
+        font-size: 24px; /* Smaller menu font size */
+    }
+
+    .projects-section h2 {
+        font-size: 30px; /* Smaller project section title font size */
+    }
+
+    .notebooks-section h2 {
+        font-size: 30px; /* Smaller notebooks section title font size */
+    }
+
+    .about-me {
+        font-size: 1em; /* Smaller about me text */
+    }
+
+    .home-button {
+        font-size: 20px; /* Smaller home button */
+    }
 }
