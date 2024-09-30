@@ -1,0 +1,248 @@
+/* General Styles */
+body {
+    font-family: 'Montserrat', sans-serif;
+    background-color: #121212;
+    color: white;
+    margin: 0;
+    padding: 0;
+}
+
+.main-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 100vh;
+    max-height: 100vh; /* Make sure it fits the screen */
+}
+
+/* Header */
+header {
+    padding: 50px;
+    text-align: left;
+    padding-bottom: 20px;
+}
+
+
+.name {
+    padding: 50px;
+    text-align: left;
+    padding-bottom: 20px;
+}
+
+
+header h1 {
+    font-size: 64px;
+    margin: 0;
+    color: white;
+}
+
+/* Menu Section */
+.menu-section {
+    text-align: left;
+    margin-left: 50px;
+}
+
+.menu-section ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.menu-section li {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.menu-section li a {
+    color: #ffffff; /* Teal Color */
+    text-decoration: none;
+    position: relative;
+    transition: color 0.3s ease;
+}
+
+.menu-section li a:hover {
+    color: #FF5349; /* Light Teal on Hover */
+}
+
+.menu-section li a::after {
+    content: " →";
+    color: #ffffff;
+    margin-left: 10px;
+    transition: margin-left 0.3s ease;
+}
+
+.menu-section li a:hover::after {
+    margin-left: 15px;
+    color: #FF5349; /* Arrow changes color on hover too */
+}
+
+/* Hero Section */
+.hero-section {
+    text-align: right;
+    padding: 20px;
+    margin-right: 50px;
+    flex-grow: 1;
+}
+
+.image-container {
+    display: inline-block;
+    width: 50%;
+}
+
+.image-container img {
+    width: 100%;
+    border-radius: 10px;
+    object-fit: cover; /* Make sure the image fits in the container */
+}
+
+/* Footer */
+footer {
+    text-align: center;
+    padding: 20px;
+    color: white;
+    font-size: 14px;
+}
+
+
+.home-button {
+    font-size: 24px;
+    color: #ffffff;
+    text-decoration: none;
+    font-weight: 700;
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    transition: color 0.3s ease;
+}
+
+.home-button:hover {
+    color: #FF5349;
+}
+
+/* Notebooks Section -------------------------- */
+.notebooks-section {
+    padding: 20px 50px;
+    color: white;
+    text-align: left;
+    flex-grow: 1;
+}
+
+.notebooks-section h2 {
+    font-size: 36px;
+    margin-bottom: 20px;
+}
+
+.notebook-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.notebook-card {
+    background-color: #1c1c1c;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    transition: transform 0.3s ease;
+}
+
+.notebook-card:hover {
+    transform: translateY(-5px);
+}
+
+@font-face {
+    font-family: "Computer Modern";
+    src: url('http://mirrors.ctan.org/fonts/cm-unicode/fonts/otf/cmunss.otf');
+}
+
+.notebook-card h3 {
+    font-size: 20px;
+    /* font-family: "Computer Modern"; */
+    margin-bottom: 10px;
+    color: #ffffff;
+}
+
+.notebook-card a {
+    color: #ffffff;
+    font-weight: 700;
+    
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.notebook-card a:hover {
+    color: #FF5349;
+}
+
+.about-me {
+    max-width: 800px;
+    margin: 0px auto;
+    text-align: center;
+    color: #ffffff;
+    font-size: 1.2em;
+}
+
+.foot {
+    font-size: 14px;
+    color: #bbbbbb;
+}
+
+.foot a {
+    color: #ffffff;
+    text-decoration: none;
+    position: relative;
+    transition: color 0.3s ease;
+    font-size: 14px;
+}
+
+.foot a:hover {
+    color: #FF5349;
+}
+
+/* Projects Section  --------------------- */
+/* Projects Section */
+.projects-section {
+    padding: 50px 150px; /* Increased padding on left and right */
+    text-align: left;
+}
+
+.projects-section h2 {
+    font-size: 36px;
+    margin-bottom: 30px;
+    color: white;
+}
+
+.project {
+    margin-bottom: 60px; /* Added more space between projects */
+}
+
+.project h3 a {
+    font-size: 24px;
+    color: #ffffff; /* Default color changed to white */
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.project h3 a:hover {
+    color: #FF5349; /* Hover color */
+}
+
+.project p {
+    font-size: 18px;
+    color: #f0f0f0;
+}
+
+.project-image {
+    width: 35%; /* Further reduced image size */
+    margin-top: 20px;
+    border-radius: 10px;
+}
+
+.small-image {
+    width: 20%;
+}
+
+/* Additional spacing */
+.projects-section .project + .project {
+    margin-top: 100px; /* Space between adjacent projects */
+}

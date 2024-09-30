@@ -4,31 +4,59 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ilay WS - Notebooks</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style2.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
 </head>
-<script>
-    function set_notebook(name) {
-        document.getElementById("pdfEmbed").src = ("PDFs/" + name);
-    }
-</script>
 <body>
-    <a class="link" href="index.html">Home</a>
-    <h1>Notebooks</h1>
-    <br><br>
-    <div class="Container">
-        <center>
-            <h3><a class="link" onclick="set_notebook('relativity.pdf')">Special Relativity</a></h3>
-            <h3><a class="link" onclick="set_notebook('hedva.pdf')">Real Analysis</a></h3>
-            <h3><a class="link" onclick="set_notebook('linearalgebra.pdf')">Linear Algebra (Part 1)</a></h3>
-            <h3><a class="link" onclick="set_notebook('LA2.pdf')">Linear Algebra (Part 2)</a></h3>
-            <h3><a class="link" onclick="set_notebook('classic1.pdf')">Classical Physics 1</a></h3>
-            <h3><a class="link" onclick="set_notebook('memphis1.pdf')">Calculus</a></h3>
-        </center>
+    <div class="main-container">
+
+        <!-- Home Button at top left -->
+        <header>
+            <a class="home-button" href="index.html">←</a>
+        </header>
+
+        <section class="notebooks-section">
+            <h2>University Notebooks</h2>
+            <div class="notebook-grid">
+                <div class="notebook-card">
+                    <h3><a href="PDFs/relativity.pdf" target="_blank">Special Relativity</a></h3>
+                </div>
+                <div class="notebook-card">
+                    <h3><a href="PDFs/hedva.pdf" target="_blank">Real Analysis</a></h3>
+                </div>
+                <div class="notebook-card">
+                    <h3><a href="PDFs/linearalgebra.pdf" target="_blank">Linear Algebra (1)</a></h3>
+                </div>
+                <div class="notebook-card">
+                    <h3><a href="PDFs/LA2.pdf" target="_blank">Linear Algebra (2)</a></h3>
+                </div>
+                <div class="notebook-card">
+                    <h3><a href="PDFs/classic1.pdf" target="_blank">Classical Physics</a></h3>
+                </div>
+                <div class="notebook-card">
+                    <h3><a href="PDFs/memphis1.pdf" target="_blank">Calculus</a></h3>
+                </div>
+                <div class="notebook-card">
+                    <h3><a href="PDFs/thermo.pdf" target="_blank">Thermodynamics</a></h3>
+                </div>
+                <div class="notebook-card">
+                    <h3><a href="PDFs/Quantum Mechanics.pdf" target="_blank">Quantum Mechanics</a></h3>
+                </div>
+                <div class="notebook-card">
+                    <h3><a href="PDFs/GR.pdf" target="_blank">General Relativity</a></h3>
+                </div>
+                <div class="notebook-card">
+                    <h3><a href="PDFs/QFT.pdf" target="_blank">QFT & Particles (1)</a></h3>
+                </div>
+                <div class="notebook-card">
+                    <h3><a href="PDFs/particles.pdf" target="_blank">QFT & Particles (2)</a></h3>
+                </div>
+            </div>            
+        </section>
+
+        <!-- <footer>
+            <p>© 2024 Ilay Wischnevsky Shlush</p>
+        </footer> -->
     </div>
-    <br><br><br>
-    <center>
-        <embed id="pdfEmbed" src="" width="800px" height="600px" />
-    </center>
-    
 </body>
 </html>

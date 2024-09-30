@@ -4,70 +4,66 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ilay WS - Projects</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style2.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <a class="link" href="index.html">Home</a>
-    <h1>Projects</h1>
-    <br>
-    <div class="Container2">
-        <h3><a class="link2" target="_blank" href="https://github.com/ilayws/LightcurveInversion">Light Curve Inversion</a></h3>
-        <p>
-        A python and C project aiming to reconstruct and identify 3D asteroid shapes only from their lightcurve graphs, inspired by "Rendezvous with Rama". Implements a simple raytracing algorithm and a DFF neural network.
-        </p>
-        <center><img class="prIm" src="assets/01.jpg"></center>
-        <br><br>
+    <div class="main-container">
 
+        <!-- Home Button -->
+        <header>
+            <a class="home-button" href="index.html">←</a>
+        </header>
 
-        <h3><a class="link2" target="_blank" href="https://github.com/ilayws/ResonanceMeasurer">Material Resonance Measurer</a></h3>
-        <p>
-            A python program used to automate the collection of amplitude/frequency data and the resonance frequency of a sonic device using a laser Doppler vibrometer and a signal generator.
-        </p>
-        <br><br>
+        <!-- Projects Section -->
+        <section class="projects-section">
+            <h2>Projects</h2>
 
+            <div class="project">
+                <h3><a href="https://github.com/ilayws/LightcurveInversion" target="_blank">Light Curve Inversion</a></h3>
+                <p>A Python and C project aiming to reconstruct and identify 3D asteroid shapes only from their lightcurve graphs. Implements a simple raytracing algorithm and a DFF neural network.</p>
+                <center><img src="assets/asteroid.gif" alt="Light Curve Inversion Project Image" class="project-image"></center>
+            </div>
 
-        <h3><a class="link2" target="_blank" href="https://github.com/ilayws/NonuniformWaves">Wave Simulation in non-uniform Medium  </a></h3>
-        <p>
-            Simulates a 1D wave (on a string) using a discrete expression of the wave equation. The wave velocity along the string c(x) can vary to simualte a non-uniform medium (e.g varying string density). The wave is then analyzed using FFT and Hilbert transform for instantenous frequencies.
-        </p>
-        <center><img class="prIm" src="assets/03.png"></center>
-        <br><br>
+            <div class="project">
+                <h3><a href="https://github.com/ilayws/ResonanceMeasurer" target="_blank">Material Resonance Measurer</a></h3>
+                <p>A Python program used to automate the collection of amplitude/frequency data and the resonance frequency of a sonic device using a laser Doppler vibrometer and a signal generator.</p>
+            </div>
 
+            <div class="project">
+                <h3><a href="https://github.com/ilayws/NonuniformWaves" target="_blank">Wave Simulation in Non-Uniform Medium</a></h3>
+                <p>Simulates a 1D wave (on a string) using a discrete expression of the wave equation. The wave velocity along the string can vary to simulate a non-uniform medium. Analyzed using FFT and Hilbert transform for instantaneous frequencies.</p>
+                <center><img src="assets/03.png" alt="Wave Simulation Project Image" class="project-image"></center>
+            </div>
 
-        <h3><a class="link2" target="_blank">Cellular Life Simulator</a></h3>
-        <p>
-            A simulator combining ideas from different cellular automata models - the classic Conway's (RIP) game of life and other variations such as "Lenia", a lesser known, but more generalized system of continuous cellular automata. (Link not up yet)
-        </p>
-        <br><br>
+            <div class="project">
+                <h3><a href="#" target="_blank">Cellular Life Simulator</a></h3>
+                <p>A simulator combining ideas from different cellular automata models such as Conway's Game of Life and Lenia. (Link not up yet)</p>
+            </div>
 
+            <div class="project">
+                <h3><a href="https://idey.itch.io/exploit" target="_blank">Exploit (Game)</a></h3>
+                <p>A short 2D platformer game about exploiting the mechanic where leaving the screen from one end brings you back from the other end. Built in Godot.</p>
+                <center><img src="assets/6.png" alt="Exploit Game Project Image" class="project-image small-image"></center>
+            </div>
 
-        <h3><a class="link2" target="_blank" href="https://idey.itch.io/exploit">Exploit (Game)</a></h3>
-        <p>
-            A short 2D platformer game about exploiting the mechanic that when you leave the screen from one end you return from the other end. Built in Godot.
-        </p>
-        <center><img width="30%" src="assets/6.png"></center>
-        <br><br>
+            <div class="project">
+                <h3><a href="https://github.com/ilayws/8080" target="_blank">8080 - Automatic Drum Machine</a></h3>
+                <p>An automatic acoustic drumset with multiple drums and dynamically changing BPM to match a musician. Built using Arduino.</p>
+                <center><img src="assets/4.png" alt="8080 Drum Machine Project Image" class="project-image"></center>
+            </div>
 
+            <div class="project">
+                <h3><a href="https://github.com/ilayws/SSoF" target="_blank">Firefly Synchronization</a></h3>
+                <p>A Python model to study the factors affecting the synchronization of fireflies.</p>
+            </div>
 
-        <h3><a class="link2" target="_blank" href="https://github.com/ilayws/8080">8080 - Automatic Drum Machine</a></h3>
-        <p>
-            An automatic acoustic drumset, with multiple drums and dynamically changing BPM to match a musician. Built using Arduino.
-        </p>
-        <center><img class="prIm" src="assets/4.png"></center>
-        <br><br>
+            <div class="project">
+                <h3><a href="https://github.com/ilayws/Interpolation" target="_blank">Polynomial and Bezier Interpolation</a></h3>
+                <p>A Python project that takes n points as input and finds both the Bezier curve and the polynomial function for those points. This method works best for n < 11.</p>
+            </div>
 
-
-        <h3><a class="link2" target="_blank" href="https://github.com/ilayws/SSoF">Firefly Synchronization</a></h3>
-        <p>
-            A python model to study the factors affecting the synchronization of fireflies.
-        </p>
-        <br><br>
-
-        <h3><a class="link2" target="_blank" href="https://github.com/ilayws/Interpolation">Polynomial and Bezier Interpolation</a></h3>
-        <p>
-            A python project that takes n points as input and finds the bezier curve and the polynomial function for those n points. The polynomial is found by creating a system of equations, expressing them in matrix form, reducing to echilon form with gaussian elimination, then calculating the polynomial's coefficients. This method works very well for n < 11.
-        </p>
-        
+        </section>
 
     </div>
 </body>
