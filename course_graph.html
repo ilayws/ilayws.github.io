@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>Course Dependencies Graph</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.28.1/cytoscape.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/layout-base@2.0.1/layout-base.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dagre@0.8.5/dist/dagre.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/cytoscape-dagre@2.5.0/cytoscape-dagre.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Heebo', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            direction: rtl;
+            background-color: #f5f7fa;
+        }
+        #cy {
+            width: 100%;
+            flex-grow: 1;
+            z-index: 999;
+            background-color: #ffffff;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            background-color: #ffffff;
+            padding: 1.5rem;
+            text-align: center;
+            border-bottom: 1px solid #e1e4e8;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .header h1 {
+            margin: 0;
+            color: #2c3e50;
+            font-size: 2rem;
+            flex: 1;
+        }
+        .controls {
+            background-color: white;
+            padding: 15px;
+            border-radius: 8px;
+            direction: rtl;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        .legend {
+            background-color: white;
+            padding: 15px;
+            border-radius: 8px;
+            direction: rtl;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin: 8px 0;
+            color: #2c3e50;
+        }
+        .legend-line {
+            width: 30px;
+            height: 2px;
+            margin-left: 10px;
+        }
+        .solid {
+            border-top: 2px solid #2c3e50;
+        }
+        .dashed {
+            border-top: 2px dashed #666;
+        }
+        button {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 8px 12px;
+            margin: 4px;
+            border-radius: 4px;
+            cursor: pointer;
+            color: #2c3e50;
+            transition: all 0.2s;
+        }
+        button:hover {
+            background-color: #e9ecef;
+        }
+        .section-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+        #search {
+            width: 200px;
+            padding: 8px;
+            margin: 4px;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            direction: rtl;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>עץ התואר במתמטיקה</h1>
+        <div class="controls">
+            <input type="text" id="search" placeholder="חיפוש קורס...">
+            <button onclick="resetView()">איפוס תצוגה</button>
+        </div>
+        <div class="legend">
+            <div class="legend-item">
+                <span>דרישות קדם </span>
+                <div class="legend-line solid"></div>
+            </div>
+            <div class="legend-item">
+                <span>דרישות מקבילות </span>
+                <div class="legend-line dashed"></div>
+            </div>
+        </div>
+    </div>
+    <div id="cy"></div>
+    <script src="course_graph.js"></script>
+</body>
+</html> 
