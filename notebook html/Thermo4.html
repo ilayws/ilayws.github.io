@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fluid Dynamics</title>
+    
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <h2>Contents</h2>
+            <ul>
+                <li><a href="FluidDynamics1.html">1. Introduction</a></li>
+                <li><a href="FluidDynamics2.html">2. Euler's Equation (Momentum Conservation)</a></li>
+                <li><a href="FluidDynamics3.html">3. Navier-Stokes Equation</a></li>
+                <li><a href="FluidDynamics4.html">4. Continuity Equation (Mass Conservation)</a></li>
+                <li><a href="FluidDynamics5.html">5. Energy Conservation Equation</a></li>
+                <li><a href="FluidDynamics6.html">6. Bernoulli's Equation</a></li>
+            </ul>
+        </div>
+
+        <div class="content">
+            <h1>Fluid Dynamics</h1>
+
+            <h2>4.1 Euler's Equation (Momentum Conservation)</h2>
+            <p>We will construct the equation of motion for fluids based on Newton's second law and pressure considerations.</p>
+            <p>The internal force acting on a small fluid element arises from the pressure acting on its surface. According to the divergence theorem (Gauss's theorem), we have:</p>
+            <p>\(\vec{F}_{int}=-\oint_{S}pd\vec{a}=-\intop_{V}\vec{\nabla}pdV\)</p>
+            <p>Taking an infinitesimal volume gives us the force per unit volume acting in the fluid at every point (we actually saw this in the “Volume Expression” in the hydrostatics chapter, where we wrote \(dF=-\nabla p dV\)). Thus, we have:</p>
+            <p>\(\frac{d\vec{F}_{int}}{dV}=\vec{f}_{int}(\vec{r},t)=-\vec{\nabla}p(\vec{r},t)\)</p>
+            <p>Using Newton's second law for that element (again for unit volume, i.e., \(\frac{dm}{dV}=\rho\)), we get:</p>
+            <p>\(-\vec{\nabla}p(\vec{r},t)=\rho\frac{d\vec{v}}{dt}\)</p>
+            <p>We can express the derivative as follows:</p>
+            <p>\(\frac{d\vec{v}}{dt}=\frac{\partial\vec{v}}{\partial x}\frac{dx}{dt}+\frac{\partial\vec{v}}{\partial y}\frac{dy}{dt}+\frac{\partial\vec{v}}{\partial z}\frac{dz}{dt}+\frac{\partial\vec{v}}{\partial t}=\left[v_{x}\frac{\partial}{\partial x}+v_{y}\frac{\partial}{\partial y}+v_{z}\frac{\partial}{\partial z}\right]\vec{v}+\frac{\partial\vec{v}}{\partial t}\)</p>
+            <p>=\(\left(\vec{v}\cdot\vec{\nabla}\right)\vec{v}+\frac{\partial\vec{v}}{\partial t}\)</p>
+            <p>Thus, from Newton's second law, we have the dynamics equation for fluids, Euler's Equation:</p>
+            <p>\(\boxed{\left(\vec{v}\cdot\vec{\nabla}\right)\vec{v}+\frac{\partial\vec{v}}{\partial t}=\frac{\vec{\nabla}p(\vec{r},t)}{\rho}+\vec{f}_{ext}}\)</p>
+            <p>Where \(\vec{f}\) is the force per unit mass (for example, for \(\vec{F}_{ext}=mg\), we write \(\vec{f}_{ext}=g\)), since we divided the equation by \(dV\) and then by \(\rho\). Dividing by \(\rho dV\) is equivalent to dividing by \(dm\) (mass).</p>
+            <p>If we set \(\vec{f}=\vec{g}\), we get the special case of a fluid under gravitational force:</p>
+            <p>\(\boxed{\left(\vec{v}\cdot\vec{\nabla}\right)\vec{v}+\frac{\partial\vec{v}}{\partial t}=\frac{\vec{\nabla}p(\vec{r},t)}{\rho}+\vec{g}}\)</p>
+
+            <h2>4.1.1 Navier-Stokes Equation</h2>
+            <p>Viscosity is the resistance to shear stress in fluids (actually, not always \(\tau=0\) in fluids).</p>
+            <p>Considering viscosity, we obtain the Navier-Stokes Equation, which is the most widely used dynamics equation for fluids.</p>
+
+            <h2>4.2 Continuity Equation (Mass Conservation)</h2>
+            <p>We want to write a mass conservation law for fluids.</p>
+            <p>Similar to before, we will differentiate the mass density:</p>
+            <p>\(\frac{d\rho}{dt}=\left(\vec{v}\cdot\vec{\nabla}\right)\rho+\frac{\partial\rho}{\partial t}\)</p>
+            <p>The two contributions to the change in density are the change at a specific point and the change due to flow.</p>
+            <p>Thus, the change in mass of a volume element:</p>
+            <p>\(\frac{dM}{dt}=\frac{d(\rho V)}{dt}=V\frac{d\rho}{dt}+\rho\frac{dV}{dt}=0\)</p>
+            <p>We obtain:</p>
+            <p>\(\frac{1}{V}\frac{dV}{dt}=\vec{\nabla}\cdot\vec{v}\)</p>
+            <p>And then:</p>
+            <p>\(\frac{d\rho}{dt}+\rho\vec{\nabla}\cdot\vec{v}=0\) (the transitions above are non-trivial).</p>
+            <p>We can substitute \(\frac{d\rho}{dt}\) and obtain:</p>
+            <p>\(\boxed{\frac{\partial\rho}{\partial t}+\vec{\nabla}\cdot(\rho\vec{v})=0}\)</p>
+
+            <h2>4.3 Simplifying Assumptions</h2>
+            <h3>4.3.1 Energy Conservation Equation</h3>
+            <p>This equation arises from the law of conservation of energy or the first law of thermodynamics.</p>
+            <p>It includes the scalar field temperature \(T(\vec{r},t)\). (This will not be covered in this course).</p>
+
+            <h3>4.3.2 State Equation</h3>
+            <p>This equation provides a relationship between pressure and other relevant variables:</p>
+            <p>\(P=P(\rho,T)\)</p>
+
+            <h3>4.3.3 Simplifying Assumptions</h3>
+            <p>All the equations we wrote above are partial differential equations, and some are even non-linear - meaning they are difficult to solve.</p>
+            <p>We will make simplifying assumptions - we will discuss an "ideal fluid" for which these equations become simpler. Two assumptions about the fluid and two assumptions about the flow type:</p>
+            <ol>
+                <li>Incompressible. The density is constant \(\frac{d\rho}{dt}=0\). Thus, from the mass conservation law, we get a simpler law: \(\boxed{\vec{\nabla}\cdot\vec{v}=0}\).</li>
+                <li>Frictionless. With zero viscosity.</li>
+                <li>Steady flow. All relevant quantities are constant. That is, \(\frac{\partial\rho}{\partial t}=\frac{\partial v}{\partial t}=0\).</li>
+                <li>Irrotational (laminar). Without vortices, that is: \(\boxed{\vec{\nabla}\times\vec{v}=0}\).</li>
+            </ol>
+            <p>We can describe the movement of the fluid using streamlines (similar to electric field lines):</p>
+            <ul>
+                <li>The speed of the fluid is tangent to the streamlines.</li>
+                <li>Streamlines do not intersect (because the flow is laminar).</li>
+                <li>Streamlines do not change over time (because the flow is steady).</li>
+                <li>The density of streamlines is proportional to the speed of the flow: The more lines per unit area (the closer together they are), the higher the speed.</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

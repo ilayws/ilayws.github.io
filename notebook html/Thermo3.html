@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 3: Fluids and Hydrostatics</title>
+    <link rel="stylesheet" href="styles.css"> <!-- Link your CSS file -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <h2>Table of Contents</h2>
+            <ul>
+                <li><a href="Thermo1.html">1. Introduction</a></li>
+                <li><a href="Thermo2.html">2. States of Matter</a></li>
+                <li><a href="Thermo3.html">3. Hydrostatics</a></li>
+                <li><a href="Thermo4.html">3. Fluid Dynamics</a></li>
+            </ul>
+        </div>
+        <div class="content">
+            <h1>3 Fluids and Hydrostatics</h1>
+            <p>In this chapter -</p>
+            <ul>
+                <li>1. Emphasis on how mass density is defined.</li>
+                <li>2. Pressure in fluids.</li>
+                <li>3. A deeper look at pressure (includes applications).</li>
+            </ul>
+
+            <h2 id="section1">3.1 Emphasis - Mass Density</h2>
+            <p>For fluids, pressure and mass density are defined as varying from point to point. To define density, we use the concept of "coarse graining."</p>
+            <p><strong>Definition #1:</strong> We define mass density precisely - we look at a small volume \( \Delta V \) with mass \( \Delta m \) at point \( \vec{r} \), then:</p>
+            <p> \[ \rho\left(\vec{r}\right)=\frac{\Delta m}{\Delta V} \]</p>
+            <p>where \( \Delta V \) is mesoscopic. That is, it is not too small to identify individual molecules but not too large to average over large regions and lose information.</p>
+
+            <h2 id="section2">3.2 Pressure in Fluids</h2>
+            <p><strong>Remarks #1:</strong> Pressure can be thought of for fluids like this - imagine a small closed piston (with cross-sectional area \( A \)) with a spring inside, and the piston is submerged in the fluid. Then, the pressure exerted by the fluid is defined as \( P\equiv\frac{F}{A} \).</p>
+            <ul>
+                <li>1. There is pressure at every point in the fluid, not just at the walls of the container (similar to a string under tension).</li>
+                <li>2. The pressure does not depend on direction (even though it is defined using a vector force, \( P \) is scalar).</li>
+                <li>3. Pressure in a liquid increases as one goes deeper, while pressure in a gas remains nearly constant (for small distances, simply due to its lower density).</li>
+            </ul>
+            <p><strong>Without Gravity:</strong> There is no external force acting on the liquid, so the effective pressure is zero; there is some negligible pressure. Vapor pressure arises from molecules escaping occasionally, and additionally, pressure results from surface tension. In contrast, gas continues to move and collide with walls, hence having positive pressure.</p>
+
+            <p><strong>With Gravity:</strong> Now, pressure acts on the liquid (the walls exert a force), in addition to vapor pressure.</p>
+            <p>We can separate pressure into two main components in a dominant liquid and a gas:</p>
+            <ul>
+                <li>1. The fluid encounters the walls of the container (in this case due to gravity).</li>
+                <li>2. Particle collisions among themselves and with the walls (thermal pressure).</li>
+            </ul>
+
+            <h2 id="section3">3.3 Additional Pressure and Applications</h2>
+            <h3>3.3.1 Expression for Pressure</h3>
+            <p>If we examine a cube \( dv \), let’s denote the pressure above and below as \( p(z+dz) \) and \( p(z) \).</p>
+            <p>Then the force \( dF_{z} \) acting on the cube is:</p>
+            <p> \[ dF_{z}=p(z)dxdy-p(z+dz)dxdy=-\frac{\partial p}{\partial z}dv \]</p>
+            <p>Since \( dxdy \) is the area of the top and bottom faces.</p>
+            <p>That is, we get (if we repeat this process for \( F_{x} \), \( F_{y} \)):</p>
+            <p> \[ d\vec{F}=-\nabla pdv \]</p>
+            <p>If we examine, for example, a fluid under gravitational force, along the vertical \( z \) axis, we have:</p>
+            <p> \[ -\frac{\partial p}{\partial z}dv=\underset{dF}{\underbrace{mg}}=\rho g dv \Rightarrow \boxed{p=p_{0}-\rho gz} \]</p>
+            <p><em>The pressure depends only on height. The pressure is the same at all points on a horizontal line in a container with a single liquid. In equilibrium, even if the horizontal line does not entirely pass through the liquid</em> (when dealing with multiple fluids, precision is required. For example, see the density gauge and pressure gauge below.)</p>
+            <p>For instance, if we set \( p \) as atmospheric pressure and \( \rho \) as the density of water - we find that every 10 meters down in water is equivalent to an additional atmosphere of pressure. And similarly.</p>
+
+            <h3>3.3.2 Law of Communicating Vessels</h3>
+            <p>Since pressure depends only on height, necessarily for any liquid in equilibrium, the height of the liquid surface is constant. We can see this - if 2 points \( A,B \) are at the bottom of the container, then \( p_{A}=p_{B} \) since \( \frac{\partial p}{\partial x}=-\vec{F}_{x}=0 \) (no force acts on the water in the horizontal direction, so in this axis, pressure is constant). Finally, \( p_{0}+\rho gh_{A}=p_{0}+\rho gh_{B} \) implies \( h_{A}=h_{B} \). (Otherwise, we would have a change in pressure, and hence a force). This law is called the law of communicating vessels.</p>
+
+            <h3>3.3.3 Density Gauge</h3>
+            <p>We can introduce two water pipes and another liquid into a shared container (as illustrated). In equilibrium (assuming the water and the liquid do not mix), the pressure at the bottom is constant, meaning \( p_{0}+\rho gh=p_{0}+\rho_{w}gh_{w} \) (this time, the heights of the liquids in the two pipes are not the same, \( h_{w} \neq h \), unlike in communicating vessels, where we assumed the liquid was homogeneous).</p>
+            <p>From this relationship, we can measure the density of the liquid:</p>
+            <p> \[ \rho=\rho_{w}\frac{h_{w}}{h} \]</p>
+
+            <h3>3.3.4 Pressure Gauge - Manometer</h3>
+            <p>Imagine gas in a container with pressure \( p_{gas} \), connected to a pipe containing liquid with mass density \( \rho \).</p>
+            <p>We can measure the pressure in the container by measuring the height of the liquid \( h \) (the distance \( BC \)).</p>
+            <p>It holds that \( p_{A}=p_{gas}=p_{C} \) and also \( p_{C}=p_{B}+\rho gh \). Thus, we get:</p>
+            <p> \[ \underset{\mathbf{\text{“Absolute Pressure”}}}{\underbrace{p_{gas}}}=p_{B}+\underset{\text{"Measured Pressure"}}{\underbrace{\rho gh}} \]</p>
+
+            <h3>3.3.5 Hydraulic Elevators and Pascal’s Principle</h3>
+            <p><strong>Definition #1:</strong> Pascal's principle states that a change in pressure at one point in an incompressible fluid is transmitted uniformly to the rest of the fluid, especially at equilibrium.</p>
+            <p>Then, for instance, if we have a hydraulic lift:</p>
+            <p> \[ \frac{F_{1}}{A_{1}}=\frac{F_{2}}{A_{2}} \Rightarrow \frac{F_{2}}{F_{1}}=\frac{A_{2}}{A_{1}} \]</p>
+            <p>Thus, it is possible to lift a load by applying a relatively small force.</p>
+            <p>This method allows us to achieve efficiency due to the ratio of cross-sectional areas of the pistons. It is therefore possible to lift heavy loads.</p>
+        </div>
+    </div>
+</body>
+</html>

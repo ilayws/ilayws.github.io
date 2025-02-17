@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math Course Skill Tree</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dagre-d3/0.6.4/dagre-d3.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+        }
+        h1 {
+            margin-top: 10px;
+        }
+        .svg-container {
+            flex-grow: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100vw;
+            height: calc(100vh - 60px);
+        }
+        svg {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+        .completed rect {
+            fill: #4CAF50 !important;
+        }
+        .course rect {
+            fill: #3498db;
+            cursor: pointer;
+            stroke: #2980b9;
+        }
+        .course text {
+            font-size: 14px;
+            fill: white;
+        }
+        .edgePath path {
+            stroke: #333;
+            stroke-width: 1.5px;
+            fill: none;
+            opacity: 0.7;
+        }
+        .coreqEdge path {
+            stroke: #e67e22;
+            stroke-width: 1.5px;
+            stroke-dasharray: 5,5;
+            fill: none;
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body>
+    <h1>Math Course Skill Tree</h1>
+    <div class="svg-container">
+        <svg><g></g></svg>
+    </div>
+    
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const courses = [
+                { id: "חדוא 1", prereqs: [], coreqs: []},
+                { id: "לינארית 1", prereqs: [], coreqs: []},
+                { id: "מבוא לתורת הקבוצות", prereqs: [], coreqs: []},
+                { id: "מבוא מורחב למדמ״ח", prereqs: [], coreqs: ["מבוא לתורת הקבוצות"]},
+                { id: "קומבינטוריקה", prereqs: ["חדוא 1", "לינארית 1"], coreqs: ["מבוא לתורת הקבוצות"]},
+                { id: "חדוא 2", prereqs: ["חדוא 1"], coreqs: []},
+                { id: "לינארית 2", prereqs: ["לינארית 1"], coreqs: []},
+                { id: "מבוא להסתברות", prereqs: ["קומבינטוריקה","מבוא לתורת הקבוצות"], coreqs: ["חדוא 2","לינארית 2"]},
+                { id: "חבורות", prereqs: [], coreqs: ["לינארית 2"]},
+                { id: "קומבינטוריקה בסיסית", prereqs: ["קומבינטוריקה"], coreqs: []},
+                { id: "תורת הגרפים", prereqs: ["מבוא להסתברות"], coreqs: []},
+                { id: "שיטות מתמטיות בתורת המשחקים", prereqs: ["מבוא להסתברות"], coreqs: []},
+                { id: "תורת המספרים", prereqs: ["חדוא 2", "לינארית 2"], coreqs: []},
+                { id: "חדוא 3", prereqs: ["חדוא 2", "לינארית 2", "קומבינטוריקה"], coreqs: []},
+                { id: "תורת ההצגות", prereqs: ["חבורות"], coreqs: []},
+                { id: "גלואה", prereqs: ["חבורות"], coreqs: []},
+                { id: "אלגברה קומוטטיבית", prereqs: ["חבורות"], coreqs: []},
+                { id: "ODE", prereqs: ["לינארית 2"], coreqs: ["חדוא 3"]},
+                { id: "גאומטריה דיפרנציאלית", prereqs: ["לינארית 2"], coreqs: ["חדוא 3", "ODE"]},
+                { id: "ממשיות", prereqs: ["לינארית 2"], coreqs: ["חדוא 3"]},
+                { id: "מרוכבות 1", prereqs: ["חדוא 2"], coreqs: ["חדוא 3"]},
+                { id: "אנליזה נומרית", prereqs: ["מבוא מורחב למדמ״ח", "חדוא 2", "לינארית 2"], coreqs: []},
+                { id: "חישוב מדעי", prereqs: ["אנליזה נומרית", "מרוכבות 1"], coreqs: []},
+                { id: "הילברט", prereqs: ["חדוא 2", "לינארית 2", "מבוא מורחב למדמ״ח"], coreqs: []},
+                { id: "טופולוגיה", prereqs: ["חדוא 2", "מבוא לתורת הקבוצות"], coreqs: []},
+                { id: "אנליזה פונקציונלית", prereqs: ["הילברט"], coreqs: ["ממשיות", "טופולוגיה"]},
+                { id: "לוגיקה", prereqs: ["מבוא לתורת הקבוצות"], coreqs: []},
+                { id: "אנליזה על יריעות", prereqs: ["גאומטריה דיפרנציאלית", "טופולוגיה"], coreqs: []},
+                // { id: "", prereqs: [], coreqs: []},
+                // { id: "", prereqs: [], coreqs: []},
+            ];
+
+            const g = new dagreD3.graphlib.Graph().setGraph({ 
+                rankdir: "TB", 
+                nodesep: 120,
+                ranksep: 180,
+                marginx: 80,
+                marginy: 80,
+                edgesep: 50,
+                ranker: "network-simplex",
+                acyclicer: "greedy"
+            });
+
+            courses.forEach(course => {
+                g.setNode(course.id, {
+                    label: course.id,
+                    class: "course",
+                    padding: 15,
+                    rx: 5,
+                    ry: 5
+                });
+            });
+
+            courses.forEach(course => {
+                course.prereqs.forEach(prereq => {
+                    g.setEdge(prereq, course.id, {
+                        label: "",
+                        style: "stroke: #333; stroke-width: 1.5px; fill: none;",
+                        arrowhead: "normal",
+                        curve: d3.curveBasis,
+                        lineInterpolate: 'basis'
+                    });
+                });
+                course.coreqs.forEach(coreq => {
+                    g.setEdge(coreq, course.id, {
+                        label: "",
+                        class: "coreqEdge",
+                        arrowhead: "normal",
+                        curve: d3.curveBasis,
+                        lineInterpolate: 'basis'
+                    });
+                });
+            });
+
+            const svg = d3.select("svg"),
+                  inner = svg.select("g"),
+                  render = new dagreD3.render();
+
+            render(inner, g);
+
+            const bbox = inner.node().getBBox();
+            svg.attr("width", bbox.width + 100).attr("height", bbox.height + 100);
+
+            d3.selectAll(".node").on("click", function(event, id) {
+                const node = d3.select(this);
+                node.classed("completed", !node.classed("completed"));
+            });
+
+            const zoom = d3.zoom().on("zoom", event => {
+                inner.attr("transform", event.transform);
+            });
+            svg.call(zoom);
+        });
+    </script>
+</body>
+</html>

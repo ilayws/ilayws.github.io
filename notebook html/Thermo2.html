@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 2: Phase States and Stresses</title>
+    
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <h2>Contents</h2>
+            <ul>
+                <li><a href="Thermo1.html">1. Introduction</a></li>
+                <li><a href="Thermo2.html">2. States of Matter</a></li>
+                <li><a href="Thermo3.html">3. Hydrostatics</a></li>
+                <li><a href="Thermo4.html">3. Fluid Dynamics</a></li>
+            </ul>
+        </div>
+
+        <div class="content">
+            <h1>Chapter 2: Characterization of Phase States and Stresses</h1>
+
+            <p>We will use coarse graining - taking a volume element \( v \) microscopically.</p>
+            <p>That is, taking \( dv \) but not infinitesimally small, rather at a scale that is not too small to identify individual molecules, but not too large to average (in the sense of losing) too much information. At this scale, we can define mass density as \( \rho = \frac{dm}{dv} \).</p>
+            <p>The main phases of matter are solid, liquid, and gas.</p>
+            <p>The various transitions between phases are called phase transitions. They occur when external conditions (temperature, pressure, etc.) change.</p>
+
+            <h2>2.1 Phase Transition Diagram</h2>
+            <p>A phase diagram describes the regions of pressure and temperature where a certain material exists in each of the phases.</p>
+            <p>For example, a phase diagram for water:</p>
+            <p>In liquids and gases ("fluids"), there is interaction between the different particles, which makes their dynamics complex. An ideal gas is one where there is no interaction between the different particles (this is a very good approximation for many gases, since the molecules are so far apart from one another).</p>
+
+            <h2>2.2 General Definitions of Phase States</h2>
+            <h3>Definition 1: Solid</h3>
+            <p>There are disordered solids (amorphous) and ordered solids (crystalline). There are periodic and non-periodic crystals (quasicrystals).</p>
+
+            <h3>Definition 2: Rigid Material</h3>
+            <p>Every atom in a solid has a fixed position relative to all the other atoms, and it oscillates around that position with very small deviations (non-ideal solid). That is, for any two points in the body, \( \left|\vec{r}_{i}-\vec{r}_{j}\right| \) does not change over time (approximately). The only degrees of freedom are translational and rotational motion of the center of mass.</p>
+            <p>The solid retains its shape and is almost incompressible.</p>
+
+            <h3>Definition 3: Gas</h3>
+            <p>A gas is a material in which each molecule (or atom) moves freely in space and only rarely collides with another molecule or the wall of the container it is in.</p>
+            <p>A gas tends to fill the entire volume of the container it occupies.</p>
+            <p>Due to the empty volume between gas molecules, it is very compressible.</p>
+            <p>A gas is a fluid.</p>
+
+            <h3>Definition 4: Liquid</h3>
+            <p>This is the most complex state among the three.</p>
+            <p>It is almost incompressible, meaning the molecules are as close together as possible.</p>
+            <p>Molecules are still in motion, so the liquid does not retain its shape.</p>
+            <p>A liquid is a fluid.</p>
+
+            <h2>2.3 Density in Phase States and Phase Transitions</h2>
+            <p>The density according to phase states:</p>
+            <ol>
+                <li>Solid: particles are close together and density is high.</li>
+                <li>Liquid: almost identical to solid (a change of a few percent).</li>
+                <li>Particles are far apart, so density is three orders of magnitude lower than in solids.</li>
+            </ol>
+            <p>Generally, we talk about density under certain pressure/temperature conditions (STP - standard temperature and pressure), otherwise the density varies.</p>
+            <p>At approximately atmospheric pressure and 0 degrees Celsius.</p>
+            <p>(In non-homogeneous materials, one should refer to local density \( \rho\left(\vec{r}\right)=\frac{dm}{dV} \) but microscopically.)</p>
+
+            <p>In English:</p>
+            <ul>
+                <li>Sublimation = sublimation</li>
+                <li>Freezing = solidification</li>
+                <li>Condensation = condensation</li>
+                <li>Deposition = deposition</li>
+            </ul>
+
+            <h2>2.4 Elasticity</h2>
+            <p>We can differentiate between the different states of matter based on their response to the application of force. Solids generally respond elastically unless too much force is applied, causing a plastic response (deformation of the solid) or breaking.</p>
+            
+            <p>Elastic range - a linear relationship exists: \( F \propto \frac{\Delta L}{L} \) (similar to Hooke's law).</p>
+            <p>Plastic range - after the force is removed, the material does not return to its original state.</p>
+            <p>Fracture - breaking.</p>
+            <p>We will see several ways to apply stress/force. Using these stresses, we will show how to differentiate between the states of matter.</p>
+
+            <h3>2.4.1 Tensile/Compressive Stress</h3>
+            <p>Similar to Hooke's law, the relationship is:</p>
+            <p>\(\boxed{\frac{F}{A}=Y\frac{\Delta L}{L}}\) where:</p>
+            <ul>
+                <li>\(\frac{\Delta L}{L}\) is the strain (dimensionless quantity).</li>
+                <li>Y is Young's modulus (plays a role similar to the spring constant in Hooke's law, depending only on the properties of the material). Sometimes denoted as E. It describes the relationship between the force acting on a certain object and its deformation.</li>
+                <li>\(\frac{F}{A}\) is called stress.</li>
+            </ul>
+            <p>In this case, where the force is perpendicular to the surface, it is called tensile stress.</p>
+            <p>Stress and Young's modulus are measured in pressure units \(\frac{N}{m^{2}}\).</p>
+            <p>Here is a diagram of tensile stress:</p>
+
+            <p>We can measure Y by constructing several rods from the material and treating them as springs with a constant K. We measure this K and then \( Y=K\frac{L}{A} \).</p>
+            <p>Thus, solids behave under tensile stress, but fluids will flow.</p>
+
+            <h3>2.4.2 Shear Stress</h3>
+            <p>Similarly, we define \( \tau \) - shear model:</p>
+            <p>\(\boxed{\frac{F}{A}=\tau\frac{\Delta L}{L}}\) where in this case we are talking about shear stress, i.e., stress parallel to the area.</p>
+            <p>Regarding fluids, we find \( \tau=0 \) because no force needs to be applied to change the shape of the material, correct only at static boundaries. Otherwise, there might be resistance - viscosity. But when there is no viscosity \( \tau=0 \) and they simply flow.</p>
+
+            <p>Note that shear stress does not change the volume of the body.</p>
+
+            <h3>2.4.3 Isotropic Compression - Volumetric Stress</h3>
+            <p>Normal force \( \Delta PdA \) is applied equally at every point on the surface (\(\Delta P=P_{out}-P_{in}\). For example, in a balloon, it refers to the pressure difference inside and outside.</p>
+            <p>Such stress exists for solids, liquids, and gases.</p>
+            <p>If the material is elastic, the body will contract/expand.</p>
+            <p>\(\boxed{\Delta P=B\left(-\frac{\Delta V}{V}\right)}\) where B is the bulk modulus (a measure of how incompressible a solid is).</p>
+            <p>The values of Y and B are usually high for solid materials, and for liquids they are very high.</p>
+            <p>This is why we think of liquids as incompressible.</p>
+            <p>We will see later that the speed of sound is related to B. This is a much more complex model.</p>
+        </div>
+    </div>
+</body>
+</html>
