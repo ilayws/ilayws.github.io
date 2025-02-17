@@ -154,9 +154,28 @@ const baseFontSize = 14; // Base font size in pixels
 const searchInput = document.getElementById('search');
 let cachedNodes = cy.nodes();
 let cachedEdges = cy.edges();
+let previousSearchTerm = '';
+let searchTimeout = null;
+const searchCache = new Map();
 
-// Optimize the debounced search function further
-const performSearch = _.debounce((searchTerm) => {
+// Create an index for faster searching
+const searchIndex = new Map();
+cachedNodes.forEach(node => {
+    const label = node.data('label').toLowerCase();
+    searchIndex.set(node.id(), {
+        node: node,
+        label: label,
+        neighbors: node.neighborhood().nodes()
+    });
+});
+
+// Optimized search function with caching and progressive updates
+const performSearch = _.throttle((searchTerm) => {
+    // Clear any pending search
+    if (searchTimeout) {
+        clearTimeout(searchTimeout);
+    }
+
     if (!searchTerm) {
         resetToOriginalLayout();
         return;
@@ -164,51 +183,84 @@ const performSearch = _.debounce((searchTerm) => {
 
     searchTerm = searchTerm.toLowerCase();
     
+    // Check cache first
+    if (searchCache.has(searchTerm)) {
+        const cachedResult = searchCache.get(searchTerm);
+        applySearchResults(cachedResult);
+        return;
+    }
+
+    // Start batch processing
     cy.startBatch();
 
-    // Reset all nodes to default style first
-    cachedNodes.style({
-        'background-color': '#b3d9ff',
-        'border-width': '1px',
-        'border-color': '#666',
-        'shadow-blur': '0',
-        'shadow-opacity': 0
-    });
+    // Reset styles efficiently
+    if (previousSearchTerm) {
+        // Only reset previously affected nodes
+        const prevResults = searchCache.get(previousSearchTerm);
+        if (prevResults) {
+            prevResults.affected.restore();
+        }
+    }
 
-    // Hide all elements
-    cy.elements().addClass('hidden');
+    // Find matching nodes using the index
+    const matchingNodes = [];
+    const affectedNodes = new Set();
+    const relevantEdges = new Set();
 
-    // Find matching nodes
-    const matchingNodes = cachedNodes.filter(node => 
-        node.data('label').toLowerCase().includes(searchTerm)
-    );
+    // Progressive search implementation
+    searchTimeout = setTimeout(() => {
+        for (const [nodeId, indexData] of searchIndex) {
+            if (indexData.label.includes(searchTerm)) {
+                matchingNodes.push(indexData.node);
+                affectedNodes.add(indexData.node);
+                
+                // Add immediate neighbors
+                indexData.neighbors.forEach(neighbor => {
+                    affectedNodes.add(neighbor);
+                });
 
-    if (matchingNodes.length > 0) {
-        // Get only directly connected elements
-        const directNeighbors = matchingNodes.neighborhood();
-        const relevantElements = matchingNodes.union(directNeighbors);
-        const relevantEdges = relevantElements.edgesWith(relevantElements);
-
-        // Show relevant elements
-        relevantElements.removeClass('hidden');
-        relevantEdges.removeClass('hidden');
-
-        // Ensure styles are applied in the correct order
-        // First style the neighbors
-        directNeighbors.nodes().forEach(node => {
-            if (!matchingNodes.contains(node)) {  // Only style if not a matching node
-                node.style({
-                    'background-color': '#E3F2FD',
-                    'border-width': '1.5px',
-                    'border-color': '#1976D2',
-                    'shadow-blur': '0',
-                    'shadow-opacity': 0
+                // Add relevant edges
+                indexData.node.connectedEdges().forEach(edge => {
+                    if (affectedNodes.has(edge.source()) && affectedNodes.has(edge.target())) {
+                        relevantEdges.add(edge);
+                    }
                 });
             }
-        });
+        }
 
-        // Then style the matching nodes (to ensure they take precedence)
-        matchingNodes.forEach(node => {
+        const searchResult = {
+            matching: cy.collection(matchingNodes),
+            affected: cy.collection([...affectedNodes]),
+            edges: cy.collection([...relevantEdges]),
+            state: {
+                hidden: cy.elements().difference(cy.collection([...affectedNodes, ...relevantEdges]))
+            }
+        };
+
+        // Cache the results
+        searchCache.set(searchTerm, searchResult);
+        
+        // Apply the results
+        applySearchResults(searchResult);
+        
+        previousSearchTerm = searchTerm;
+    }, 50); // Small delay for input batching
+
+    cy.endBatch();
+}, 150); // Throttle the main search function
+
+// Efficient application of search results
+function applySearchResults(results) {
+    cy.startBatch();
+
+    // Hide non-relevant elements
+    results.state.hidden.addClass('hidden');
+    results.affected.removeClass('hidden');
+    results.edges.removeClass('hidden');
+
+    // Apply styles efficiently
+    results.affected.forEach(node => {
+        if (results.matching.contains(node)) {
             node.style({
                 'background-color': '#4CAF50',
                 'border-width': '2px',
@@ -216,10 +268,21 @@ const performSearch = _.debounce((searchTerm) => {
                 'shadow-blur': '10',
                 'shadow-opacity': 0.5
             });
-        });
+        } else {
+            node.style({
+                'background-color': '#E3F2FD',
+                'border-width': '1.5px',
+                'border-color': '#1976D2',
+                'shadow-blur': '0',
+                'shadow-opacity': 0
+            });
+        }
+    });
 
-        // Optimize layout settings
-        const searchLayout = {
+    // Only run layout if there are matching nodes
+    if (results.matching.length > 0) {
+        const visibleElements = results.affected.union(results.edges);
+        const layout = visibleElements.layout({
             name: 'dagre',
             fit: true,
             padding: 35,
@@ -230,52 +293,14 @@ const performSearch = _.debounce((searchTerm) => {
             ranker: 'network-simplex',
             spacingFactor: 1.0,
             edgeSep: 30,
-            minLen: function(edge) {
-                return edge.data('type') === 'prereq' ? 1.5 : 1;
-            }
-        };
-
-        // Run layout only on visible elements
-        const layout = relevantElements.layout(searchLayout);
-        layout.run();
-
-        // Ensure styles are maintained after layout
-        requestAnimationFrame(() => {
-            // Reapply styles after layout to ensure consistency
-            directNeighbors.nodes().forEach(node => {
-                if (!matchingNodes.contains(node)) {
-                    node.style({
-                        'background-color': '#E3F2FD',
-                        'border-width': '1.5px',
-                        'border-color': '#1976D2'
-                    });
-                }
-            });
-
-            matchingNodes.forEach(node => {
-                node.style({
-                    'background-color': '#4CAF50',
-                    'border-width': '2px',
-                    'border-color': '#2E7D32',
-                    'shadow-blur': '10',
-                    'shadow-opacity': 0.5
-                });
-            });
+            minLen: edge => edge.data('type') === 'prereq' ? 1.5 : 1
         });
 
-        cy.animation({
-            fit: {
-                padding: 35
-            },
-            duration: 200,
-            easing: 'ease-out'
-        }).play().promise('completed').then(updateTextSize);
-    } else {
-        resetToOriginalLayout();
+        layout.run();
     }
 
     cy.endBatch();
-}, 100);
+}
 
 // Add CSS classes for better performance
 cy.style()
