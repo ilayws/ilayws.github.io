@@ -57,12 +57,73 @@
             fill: none;
             opacity: 0.7;
         }
+        .search-container {
+            margin: 10px;
+            padding: 10px;
+        }
+        #searchInput {
+            padding: 8px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 200px;
+        }
+        .highlighted rect {
+            fill: #e74c3c !important;
+            stroke: #c0392b !important;
+        }
+        .dimmed {
+            opacity: 0.2;
+        }
+        .legend {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 1000;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+        }
+        .legend-line {
+            width: 30px;
+            height: 2px;
+        }
+        .prereq-line {
+            background: #333;
+        }
+        .coreq-line {
+            background: #e67e22;
+            border-top: 2px dashed #e67e22;
+            height: 0px;
+        }
     </style>
 </head>
 <body>
-    <h1>Math Course Skill Tree</h1>
+    <div class="search-container">
+        <input type="text" id="searchInput" placeholder="Search for a course...">
+    </div>
     <div class="svg-container">
         <svg><g></g></svg>
+    </div>
+    <div class="legend">
+        <div class="legend-item">
+            <div class="legend-line prereq-line"></div>
+            <span>קדם</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-line coreq-line"></div>
+            <span>במקביל</span>
+        </div>
     </div>
     
     <script>
@@ -86,7 +147,7 @@
                 { id: "גלואה", prereqs: ["חבורות"], coreqs: []},
                 { id: "אלגברה קומוטטיבית", prereqs: ["חבורות"], coreqs: []},
                 { id: "ODE", prereqs: ["לינארית 2"], coreqs: ["חדוא 3"]},
-                { id: "גאומטריה דיפרנציאלית", prereqs: ["לינארית 2"], coreqs: ["חדוא 3", "ODE"]},
+                { id: "גיאומטריה דיפרנציאלית", prereqs: ["לינארית 2"], coreqs: ["חדוא 3", "ODE"]},
                 { id: "ממשיות", prereqs: ["לינארית 2"], coreqs: ["חדוא 3"]},
                 { id: "מרוכבות 1", prereqs: ["חדוא 2"], coreqs: ["חדוא 3"]},
                 { id: "אנליזה נומרית", prereqs: ["מבוא מורחב למדמ״ח", "חדוא 2", "לינארית 2"], coreqs: []},
@@ -95,71 +156,252 @@
                 { id: "טופולוגיה", prereqs: ["חדוא 2", "מבוא לתורת הקבוצות"], coreqs: []},
                 { id: "אנליזה פונקציונלית", prereqs: ["הילברט"], coreqs: ["ממשיות", "טופולוגיה"]},
                 { id: "לוגיקה", prereqs: ["מבוא לתורת הקבוצות"], coreqs: []},
-                { id: "אנליזה על יריעות", prereqs: ["גאומטריה דיפרנציאלית", "טופולוגיה"], coreqs: []},
-                // { id: "", prereqs: [], coreqs: []},
-                // { id: "", prereqs: [], coreqs: []},
+                { id: "אנליזה על יריעות", prereqs: ["גיאומטריה דיפרנציאלית", "טופולוגיה"], coreqs: []},
+                { id: "חדוא 4", prereqs: ["חדוא 3"], coreqs: []},
+                { id: "מד״ח", prereqs: ["ODE"], coreqs: ["חדוא 4","מרוכבות 1"]},
+                { id: "מרוכבות 2", prereqs: ["מרוכבות 1"], coreqs: []},
+                { id: "אנליזה הרמונית", prereqs: ["ממשיות","מרוכבות 1"], coreqs: []},
+                { id: "הסתברות למתמטיקאים", prereqs: ["ממשיות","מבוא להסתברות"], coreqs: []},
+                { id: "משחקי בורל", prereqs: ["הסתברות למתמטיקאים"], coreqs: []},
+                { id: "מבוא לתהליכים מקריים", prereqs: ["הסתברות למתמטיקאים"], coreqs: []},
+                { id: "תורת הקבוצות", prereqs: ["לינארית 1", "חדוא 1"], coreqs: []},
             ];
-
-            const g = new dagreD3.graphlib.Graph().setGraph({ 
-                rankdir: "TB", 
-                nodesep: 120,
-                ranksep: 180,
-                marginx: 80,
-                marginy: 80,
-                edgesep: 50,
-                ranker: "network-simplex",
-                acyclicer: "greedy"
-            });
-
-            courses.forEach(course => {
-                g.setNode(course.id, {
-                    label: course.id,
-                    class: "course",
-                    padding: 15,
-                    rx: 5,
-                    ry: 5
+            
+            let g;
+            let inner;
+            let render;
+            
+            function initializeGraph() {
+                g = new dagreD3.graphlib.Graph().setGraph({ 
+                    rankdir: "TB", 
+                    nodesep: 120,
+                    ranksep: 180,
+                    marginx: 80,
+                    marginy: 80,
+                    edgesep: 50,
+                    ranker: "network-simplex",
+                    acyclicer: "greedy"
                 });
-            });
 
-            courses.forEach(course => {
-                course.prereqs.forEach(prereq => {
-                    g.setEdge(prereq, course.id, {
-                        label: "",
-                        style: "stroke: #333; stroke-width: 1.5px; fill: none;",
-                        arrowhead: "normal",
-                        curve: d3.curveBasis,
-                        lineInterpolate: 'basis'
+                courses.forEach(course => {
+                    g.setNode(course.id, {
+                        label: course.id,
+                        class: "course",
+                        padding: 15,
+                        rx: 5,
+                        ry: 5
                     });
                 });
-                course.coreqs.forEach(coreq => {
-                    g.setEdge(coreq, course.id, {
-                        label: "",
-                        class: "coreqEdge",
-                        arrowhead: "normal",
-                        curve: d3.curveBasis,
-                        lineInterpolate: 'basis'
+
+                courses.forEach(course => {
+                    course.prereqs.forEach(prereq => {
+                        g.setEdge(prereq, course.id, {
+                            label: "",
+                            style: "stroke: #333; stroke-width: 1.5px; fill: none;",
+                            arrowhead: "normal",
+                            curve: d3.curveBasis,
+                            lineInterpolate: 'basis'
+                        });
+                    });
+                    course.coreqs.forEach(coreq => {
+                        g.setEdge(coreq, course.id, {
+                            label: "",
+                            class: "coreqEdge",
+                            arrowhead: "normal",
+                            curve: d3.curveBasis,
+                            lineInterpolate: 'basis'
+                        });
                     });
                 });
+            }
+
+            function renderGraph() {
+                const svg = d3.select("svg");
+                inner = svg.select("g");
+                render = new dagreD3.render();
+
+                render(inner, g);
+
+                const bbox = inner.node().getBBox();
+                svg.attr("width", bbox.width + 100).attr("height", bbox.height + 100);
+
+                // Add click handlers
+                d3.selectAll(".node").on("click", function(event, id) {
+                    const node = d3.select(this);
+                    node.classed("completed", !node.classed("completed"));
+                });
+
+                // Initialize zoom
+                const zoom = d3.zoom().on("zoom", event => {
+                    inner.attr("transform", event.transform);
+                });
+                svg.call(zoom);
+
+                // Calculate initial scale to fit the entire graph
+                const svgWidth = svg.node().clientWidth;
+                const svgHeight = svg.node().clientHeight;
+                const scale = Math.min(
+                    (svgWidth - 100) / bbox.width,
+                    (svgHeight - 100) / bbox.height,
+                    1  // Maximum scale of 1 for initial view
+                );
+
+                // Center and scale the graph
+                const initialTransform = d3.zoomIdentity
+                    .translate((svgWidth - bbox.width * scale) / 2, 
+                              (svgHeight - bbox.height * scale) / 2)
+                    .scale(scale);
+                
+                svg.call(zoom.transform, initialTransform);
+            }
+
+            function getMatchingCourses(searchTerm) {
+                if (!searchTerm) return [];
+                return courses
+                    .map(course => course.id)
+                    .filter(id => id.includes(searchTerm));
+            }
+
+            function getAllConnectedNodes(matchingCourses) {
+                const connected = new Set(matchingCourses);
+                
+                matchingCourses.forEach(courseId => {
+                    // Get the current course
+                    const course = courses.find(c => c.id === courseId);
+                    if (course) {
+                        // Only add immediate prerequisites and corequisites
+                        course.prereqs.forEach(p => connected.add(p));
+                        course.coreqs.forEach(c => connected.add(c));
+                    }
+                    
+                    // Only add courses that directly have this course as a prerequisite or corequisite
+                    courses.forEach(c => {
+                        if (c.prereqs.includes(courseId) || c.coreqs.includes(courseId)) {
+                            connected.add(c.id);
+                        }
+                    });
+                });
+                
+                return connected;
+            }
+
+            function createSubGraph(nodes) {
+                const subGraph = new dagreD3.graphlib.Graph().setGraph({ 
+                    rankdir: "TB", 
+                    nodesep: 70,  // Reduced from 120
+                    ranksep: 100, // Reduced from 180
+                    marginx: 40,  // Reduced from 80
+                    marginy: 40,  // Reduced from 80
+                    edgesep: 30,  // Reduced from 50
+                    ranker: "network-simplex",
+                    acyclicer: "greedy"
+                });
+
+                // Add only the visible nodes
+                nodes.forEach(nodeId => {
+                    subGraph.setNode(nodeId, {
+                        label: nodeId,
+                        class: "course",
+                        padding: 15,
+                        rx: 5,
+                        ry: 5
+                    });
+                });
+
+                // Add only the edges between visible nodes
+                courses.forEach(course => {
+                    if (nodes.has(course.id)) {
+                        course.prereqs.forEach(prereq => {
+                            if (nodes.has(prereq)) {
+                                subGraph.setEdge(prereq, course.id, {
+                                    label: "",
+                                    style: "stroke: #333; stroke-width: 1.5px; fill: none;",
+                                    arrowhead: "normal",
+                                    curve: d3.curveBasis
+                                });
+                            }
+                        });
+                        course.coreqs.forEach(coreq => {
+                            if (nodes.has(coreq)) {
+                                subGraph.setEdge(coreq, course.id, {
+                                    label: "",
+                                    class: "coreqEdge",
+                                    arrowhead: "normal",
+                                    curve: d3.curveBasis
+                                });
+                            }
+                        });
+                    }
+                });
+
+                return subGraph;
+            }
+
+            function renderSubGraph(subGraph, matchingCourses) {
+                const svg = d3.select("svg");
+                const inner = svg.select("g");
+                
+                // Clear existing graph
+                inner.selectAll("*").remove();
+                
+                // Render new graph
+                const render = new dagreD3.render();
+                render(inner, subGraph);
+
+                // Update node styles
+                d3.selectAll(".node").each(function(id) {
+                    const node = d3.select(this);
+                    if (matchingCourses.includes(id)) {
+                        node.classed("highlighted", true);
+                    }
+                });
+
+                // Center and scale the graph
+                const bbox = inner.node().getBBox();
+                const scale = Math.min(
+                    (svg.node().clientWidth - 100) / bbox.width,
+                    (svg.node().clientHeight - 100) / bbox.height,
+                    1.5  // Maximum scale factor
+                );
+                
+                const transform = d3.zoomIdentity
+                    .translate((svg.node().clientWidth - bbox.width * scale) / 2, 
+                              (svg.node().clientHeight - bbox.height * scale) / 2)
+                    .scale(scale);
+                
+                svg.call(d3.zoom().transform, transform);
+            }
+
+            function highlightSearch(searchTerm) {
+                if (!searchTerm) {
+                    // Reset to original graph
+                    initializeGraph();
+                    renderGraph();
+                    return;
+                }
+
+                const matchingCourses = getMatchingCourses(searchTerm);
+                const connectedNodes = getAllConnectedNodes(matchingCourses);
+                
+                // Create and render a new subgraph
+                const subGraph = createSubGraph(connectedNodes);
+                renderSubGraph(subGraph, matchingCourses);
+            }
+
+            // Initialize the graph
+            initializeGraph();
+            renderGraph();
+
+            // Add search functionality with debouncing
+            const searchInput = document.getElementById("searchInput");
+            let searchTimeout;
+            searchInput.addEventListener("input", (e) => {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    const searchTerm = e.target.value.trim();
+                    highlightSearch(searchTerm);
+                }, 300); // Wait 300ms after typing stops
             });
-
-            const svg = d3.select("svg"),
-                  inner = svg.select("g"),
-                  render = new dagreD3.render();
-
-            render(inner, g);
-
-            const bbox = inner.node().getBBox();
-            svg.attr("width", bbox.width + 100).attr("height", bbox.height + 100);
-
-            d3.selectAll(".node").on("click", function(event, id) {
-                const node = d3.select(this);
-                node.classed("completed", !node.classed("completed"));
-            });
-
-            const zoom = d3.zoom().on("zoom", event => {
-                inner.attr("transform", event.transform);
-            });
-            svg.call(zoom);
         });
     </script>
 </body>
