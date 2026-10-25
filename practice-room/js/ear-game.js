@@ -8,7 +8,7 @@ window.EarGame = (() => {
   const stage = $('earStage'), card = $('earCard');
   const grandSvg = $('grand'), grandWrap = $('grandWrap');
   const answerGrid = $('answerGrid'), caption = $('earCaption');
-  const continueBtn = $('continueBtn'), stageRow = $('earStageRow');
+  const continueBtn = $('continueBtn'), stageRow = $('earStageRow'), extraBtn = $('earExtraBtn');
   const timers = App.makeTimers();
 
   /**
@@ -19,6 +19,11 @@ window.EarGame = (() => {
    *   play(q), caption(q),
    *   columns(q, guessId | null) -> 3 grand-staff columns (q.answer is set once answered),
    *   onAgain(), onSettings()
+   *   optional: sublabels (room for a second label line), rightPause (ms),
+   *   statsItem(q) -> { id, label } (what to track instead of the answer),
+   *   noMixups, describeMisses(misses) -> text for the results screen,
+   *   extra: { label, play(q) } (a second sound button once answered),
+   *   keys: { key: answerId } (computer-keyboard shortcuts)
    * }
    */
   let round = null;
@@ -37,6 +42,7 @@ window.EarGame = (() => {
       fit: grandWrap.clientWidth - 16,
       min: 0.5,
       max: 1.7,
+      sublabels: !!round.sublabels,
     };
   }
 
@@ -44,6 +50,7 @@ window.EarGame = (() => {
     answerGrid.innerHTML = round.choices.map(c =>
       `<button type="button" class="answer-btn" id="ans-${c.id}" data-ans="${c.id}" aria-label="${c.name}" title="${c.name}">${c.label}</button>`).join('');
     answerGrid.dataset.unit = round.unit;
+    answerGrid.dataset.kind = round.statsKey;
   }
 
   // Balanced rows: 8 buttons -> 4 + 4, 13 -> 7 + 6, 25 -> 7 + 7 + 7 + 4
@@ -67,6 +74,7 @@ window.EarGame = (() => {
     timers.clear();
     buildAnswers();
     setContinue(false);
+    extraBtn.hidden = true;
     game = { q: null, i: 0, total: r.total, results: [], times: [], misses: [], locked: true };
     App.show('earGame');
     layoutAnswers();
@@ -81,6 +89,7 @@ window.EarGame = (() => {
 
   function nextQuestion() {
     setContinue(false);
+    extraBtn.hidden = true;
     game.q = round.makeQuestion(game.q);
     game.q.answer = null;
     game.q.start = 0;
@@ -117,8 +126,10 @@ window.EarGame = (() => {
     game.times.push(ms);
     game.results.push(ok);
     const label = id => round.choices.find(c => c.id === id).label;
-    App.recordItem(round.statsKey, q.answerId, ok, ms, { label: label(q.answerId) });
-    if (!ok) App.recordMixup(round.statsKey, q.answerId, id);
+    const item = round.statsItem ? round.statsItem(q) : { id: q.answerId, label: label(q.answerId) };
+    App.recordItem(round.statsKey, item.id, ok, ms, { label: item.label });
+    if (!ok && !round.noMixups) App.recordMixup(round.statsKey, q.answerId, id);
+    if (round.extra) { extraBtn.textContent = round.extra.label; extraBtn.hidden = false; }
     q.answer = { id, ok };
     $(`ans-${q.answerId}`).classList.add('ok');
     if (!ok) {
@@ -128,7 +139,7 @@ window.EarGame = (() => {
     }
     draw();
     if (ok) {
-      timers.later(advance, RIGHT_PAUSE);
+      timers.later(advance, round.rightPause || RIGHT_PAUSE);
     } else {
       setContinue(true);
       continueBtn.focus({ preventScroll: true });
@@ -161,7 +172,7 @@ window.EarGame = (() => {
       times: game.times,
       unit: round.unit,
       statsKey: round.statsKey,
-      extra: mixed.length ? `Mixed up: ${mixed.join(', ')}.` : '',
+      extra: round.describeMisses ? round.describeMisses(game.misses) : mixed.length ? `Mixed up: ${mixed.join(', ')}.` : '',
       review: null,
       onAgain: round.onAgain,
       onSettings: round.onSettings,
@@ -172,6 +183,7 @@ window.EarGame = (() => {
   function stop() {
     timers.clear();
     setContinue(false);
+    extraBtn.hidden = true;
     game = null;
   }
 
@@ -182,6 +194,11 @@ window.EarGame = (() => {
     if (game && game.q && game.q.start) playFresh(game.q);
   });
   continueBtn.addEventListener('click', continueAfterMistake);
+  extraBtn.addEventListener('click', () => {
+    if (!game || !game.q || !round.extra) return;
+    App.stopAll();
+    round.extra.play(game.q);
+  });
   answerGrid.addEventListener('click', e => {
     const b = e.target.closest('[data-ans]');
     if (b) answer(b.dataset.ans);
@@ -194,6 +211,10 @@ window.EarGame = (() => {
     if (e.key === 'Enter' && !continueBtn.hidden) {
       e.preventDefault();
       return continueAfterMistake();
+    }
+    if (round && round.keys && round.keys[e.key] && game && !game.locked) {
+      e.preventDefault();
+      return answer(round.keys[e.key]);
     }
     if (e.key === ' ' && game && game.q && game.q.start) {
       e.preventDefault();

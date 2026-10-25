@@ -121,7 +121,12 @@ button { font: inherit; color: inherit; }
 /* Vertically centered when there's room, top-aligned (never clipped) when there isn't */
 .hub > :first-child, .setup > :first-child, .results > :first-child { margin-top: auto; }
 .hub > :last-child, .setup > :last-child, .results > :last-child { margin-bottom: auto; }
-.mode-list { display: flex; flex-direction: column; gap: clamp(8px, 1.3vh, 12px); }
+.mode-list { display: grid; grid-template-columns: minmax(0, 1fr); gap: clamp(8px, 1.3vh, 12px); }
+/* Wide screens: two columns of drills */
+@media (min-width: 760px) {
+  .hub { max-width: 860px; }
+  .mode-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
 .mode-card {
   display: flex;
   align-items: center;
@@ -139,7 +144,7 @@ button { font: inherit; color: inherit; }
 .mode-card:active { transform: scale(0.99); }
 .mode-art {
   flex: none;
-  width: clamp(54px, 9vh, 80px); height: clamp(54px, 9vh, 80px);
+  width: clamp(42px, 7vh, 80px); height: clamp(42px, 7vh, 80px);
   display: grid; place-items: center;
   border-radius: 12px;
   background: var(--bg);
@@ -607,7 +612,11 @@ button { font: inherit; color: inherit; }
 .stats-screen { gap: clamp(8px, 1.6vh, 14px); }
 .stats-head { display: flex; align-items: center; gap: 14px; }
 .stats-head .text-btn { margin-left: auto; }
-@media (max-width: 520px) { .stats-tabs button { font-size: 13px; padding-inline: 2px; } }
+/* Six drills: the tab row scrolls sideways on narrow screens */
+.stats-tabs { overflow-x: auto; scrollbar-width: none; }
+.stats-tabs::-webkit-scrollbar { display: none; }
+.stats-tabs button { flex: 1 0 auto; padding-inline: 12px; }
+@media (max-width: 520px) { .stats-tabs button { font-size: 14px; padding-inline: 10px; } }
 .segmented.mini { padding: 3px; border-radius: 10px; }
 .segmented.mini button { padding: 4px 10px; font-size: 13px; border-radius: 7px; }
 .segmented button:disabled { opacity: 0.35; cursor: default; }
@@ -630,10 +639,11 @@ button { font: inherit; color: inherit; }
 @media (min-width: 1000px) and (min-height: 560px) {
   .stats-views { display: none !important; }
   .stats-body .stats-panel { display: flex !important; }
-  .stats-body[data-mode="clefs"] { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .stats-body[data-mode="clefs"], .stats-body[data-mode="intonation"] { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
   .stats-body[data-mode="intervals"], .stats-body[data-mode="chords"], .stats-body[data-mode="progressions"] { grid-template-columns: minmax(0, 1.05fr) minmax(0, 1.2fr) minmax(0, 0.8fr); }
   .stats-body[data-mode="melody"] .stats-panel:not([data-panel="progress"]),
-  .stats-body[data-mode="clefs"] .stats-panel[data-panel="mixups"] { display: none !important; }
+  .stats-body[data-mode="clefs"] .stats-panel[data-panel="mixups"],
+  .stats-body[data-mode="intonation"] .stats-panel[data-panel="mixups"] { display: none !important; }
 }
 
 .panel-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
@@ -740,3 +750,7 @@ button { font: inherit; color: inherit; }
 .prog-controls { display: flex; gap: 10px; }
 .prog-controls .ctrl-btn { height: auto; }
 .prog-controls .btn { flex: 1; }
+
+/* ---------- Intonation ---------- */
+.answer-grid[data-kind="intonation"] { max-width: 440px; }
+.answer-grid[data-kind="intonation"] .answer-btn { height: clamp(52px, 9vh, 76px); font-size: 20px; }

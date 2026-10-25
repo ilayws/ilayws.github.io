@@ -31,7 +31,7 @@
         <span class="mode-art"><svg id="hubClefsArt" aria-hidden="true"></svg></span>
         <span class="mode-text">
           <span class="mode-name">Clefs</span>
-          <span class="mode-desc">Read notes in treble, bass and alto clef.</span>
+          <span class="mode-desc">Read notes in every clef.</span>
         </span>
         <svg class="chev" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </button>
@@ -39,7 +39,7 @@
         <span class="mode-art"><svg id="hubIntervalsArt" aria-hidden="true"></svg></span>
         <span class="mode-text">
           <span class="mode-name">Intervals</span>
-          <span class="mode-desc">Hear two notes, name the interval.</span>
+          <span class="mode-desc">Hear an interval, name it.</span>
         </span>
         <svg class="chev" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </button>
@@ -47,7 +47,7 @@
         <span class="mode-art"><svg id="hubChordsArt" aria-hidden="true"></svg></span>
         <span class="mode-text">
           <span class="mode-name">Chords</span>
-          <span class="mode-desc">Hear a chord, name its quality.</span>
+          <span class="mode-desc">Hear a chord, name its type.</span>
         </span>
         <svg class="chev" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </button>
@@ -63,7 +63,15 @@
         <span class="mode-art"><svg id="hubProgArt" aria-hidden="true"></svg></span>
         <span class="mode-text">
           <span class="mode-name">Progressions</span>
-          <span class="mode-desc">Hear a progression, name each chord.</span>
+          <span class="mode-desc">Name each chord you hear.</span>
+        </span>
+        <svg class="chev" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <button type="button" class="mode-card" id="openIntonation">
+        <span class="mode-art"><svg id="hubIntonationArt" aria-hidden="true"></svg></span>
+        <span class="mode-text">
+          <span class="mode-name">Intonation</span>
+          <span class="mode-desc">Is the top note flat or sharp?</span>
         </span>
         <svg class="chev" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </button>
@@ -239,6 +247,7 @@
               <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
               Hear again
             </button>
+            <button type="button" class="btn ghost" id="earExtraBtn" hidden></button>
             <button type="button" class="btn primary small" id="continueBtn" hidden>Continue</button>
           </div>
         </div>
@@ -415,6 +424,47 @@
     </div>
   </section>
 
+  <!-- Intonation: setup -->
+  <section id="intonationSetup" class="screen setup" hidden>
+    <div class="setup-head">
+      <button type="button" class="icon-btn" data-hub aria-label="Back to all drills">
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <div>
+        <h1 class="setup-title">Intonation</h1>
+        <p class="setup-sub">The top note is slightly out of tune. Is it flat or sharp?</p>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="label-row">
+        <h2 class="label">Intervals</h2>
+        <button type="button" class="text-btn" id="inAll">Select all</button>
+      </div>
+      <div class="iv-grid" id="inIvGrid"></div>
+    </div>
+
+    <div class="field">
+      <h2 class="label" id="inLevelLabel">Difficulty</h2>
+      <div class="level-grid" id="inLevelGrid" role="radiogroup" aria-labelledby="inLevelLabel"></div>
+    </div>
+
+    <div class="field">
+      <h2 class="label" id="inTuningLabel">In tune means</h2>
+      <div class="segmented" id="inTuningGroup" role="radiogroup" aria-labelledby="inTuningLabel"></div>
+    </div>
+
+    <div class="field">
+      <h2 class="label" id="inCountLabel">Intervals per round</h2>
+      <div class="segmented" id="inCountGroup" role="radiogroup" aria-labelledby="inCountLabel"></div>
+    </div>
+
+    <div class="field">
+      <button type="button" id="inStartBtn" class="btn primary">Start</button>
+      <p class="hint" id="inHint" hidden>Pick at least one interval to start.</p>
+    </div>
+  </section>
+
   <!-- Stats -->
   <section id="stats" class="screen stats-screen" hidden>
     <div class="stats-head">
@@ -505,6 +555,7 @@
 <script src="js/chords.js"></script>
 <script src="js/melody.js"></script>
 <script src="js/progressions.js"></script>
+<script src="js/intonation.js"></script>
 <script src="js/stats.js"></script>
 <script src="js/main.js"></script>
 </body>

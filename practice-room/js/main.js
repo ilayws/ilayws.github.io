@@ -8,6 +8,7 @@
   $('openChords').addEventListener('click', () => Chords.open());
   $('openMelody').addEventListener('click', () => Melody.open());
   $('openProgressions').addEventListener('click', () => Progressions.open());
+  $('openIntonation').addEventListener('click', () => Intonation.open());
   $('openStats').addEventListener('click', () => Stats.open());
   for (const b of document.querySelectorAll('[data-hub]')) b.addEventListener('click', () => App.show('hub'));
 
@@ -30,6 +31,11 @@
       { type: 'chord', ps: [0, 2, 4] },
       { type: 'chord', ps: [1, 3, 5] },
       { type: 'chord', ps: [2, 4, 6] },
+    ], opts);
+    App.renderStaff($('hubIntonationArt'), [
+      { type: 'clef', clef: 'treble' },
+      { type: 'note', p: 2, index: 0 },
+      { type: 'note', p: 6, acc: 'sharp', index: 1 },
     ], opts);
     App.renderStaff($('hubMelodyArt'), [
       { type: 'clef', clef: 'treble' },

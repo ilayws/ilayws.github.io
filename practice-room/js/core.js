@@ -495,7 +495,7 @@ window.App = (() => {
   // Per drill: finished rounds (for the progress charts), per-item tallies
   // (notes, intervals, chords) and mix-ups ("answer>guess" counts).
   const STATS_KEY = 'practice.stats.v1';
-  const STATS_MODES = ['clefs', 'intervals', 'chords', 'melody', 'progressions'];
+  const STATS_MODES = ['clefs', 'intervals', 'chords', 'melody', 'progressions', 'intonation'];
   let stats = null;
 
   function readStats() {

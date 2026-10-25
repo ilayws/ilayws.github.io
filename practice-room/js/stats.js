@@ -12,6 +12,7 @@
     chords:       { name: 'Chords',       unit: 'chord',       item: 'chord',    items: 'By chord',    source: () => window.Chords },
     melody:       { name: 'Melody',       unit: 'melody' },
     progressions: { name: 'Progressions', unit: 'progression', item: 'chord',    items: 'By numeral',  source: () => window.Progressions },
+    intonation:   { name: 'Intonation',   unit: 'interval',    item: 'interval', items: 'By interval', source: () => window.Intonation },
   };
   const labelFor = (m, id) => {
     const src = MODES[m].source && MODES[m].source();
@@ -150,7 +151,7 @@
     const mod = MODES[kind].source();
     const labelOf = id => labelFor(kind, id);
     const ids = mod.order.filter(id => items[id]);
-    const colW = kind === 'intervals' ? 46 : 58;
+    const colW = kind === 'intervals' || kind === 'intonation' ? 46 : 58;
     const top = draw.trebleTop, bottom = top + 8 * H;
     const startX = 10 + CLEFS.treble.width + 14;
     const W = startX + ids.length * colW + 12;
@@ -307,7 +308,7 @@
   }
 
   // ---------- Screen ----------
-  const viewsFor = m => (m === 'melody' ? ['progress'] : m === 'clefs' ? ['progress', 'map'] : ['progress', 'map', 'mixups']);
+  const viewsFor = m => (m === 'melody' ? ['progress'] : m === 'clefs' || m === 'intonation' ? ['progress', 'map'] : ['progress', 'map', 'mixups']);
 
   function render() {
     const s = App.readStats()[mode];
