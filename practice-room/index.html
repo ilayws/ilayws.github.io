@@ -1,0 +1,511 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#e8ecf1">
+<title>Practice Room</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,500;6..96,700&family=Figtree:wght@400;500;600;700&family=Noto+Music&display=swap">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<main class="app">
+
+  <!-- Hub -->
+  <section id="hub" class="screen hub">
+    <header class="brand">
+      <h1>Practice Room</h1>
+      <div class="brand-row">
+        <p>Short drills for reading and hearing music.</p>
+        <button type="button" class="stats-btn" id="openStats">
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          Stats
+        </button>
+      </div>
+    </header>
+
+    <div class="mode-list">
+      <button type="button" class="mode-card" id="openClefs">
+        <span class="mode-art"><svg id="hubClefsArt" aria-hidden="true"></svg></span>
+        <span class="mode-text">
+          <span class="mode-name">Clefs</span>
+          <span class="mode-desc">Read notes in treble, bass and alto clef.</span>
+        </span>
+        <svg class="chev" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <button type="button" class="mode-card" id="openIntervals">
+        <span class="mode-art"><svg id="hubIntervalsArt" aria-hidden="true"></svg></span>
+        <span class="mode-text">
+          <span class="mode-name">Intervals</span>
+          <span class="mode-desc">Hear two notes, name the interval.</span>
+        </span>
+        <svg class="chev" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <button type="button" class="mode-card" id="openChords">
+        <span class="mode-art"><svg id="hubChordsArt" aria-hidden="true"></svg></span>
+        <span class="mode-text">
+          <span class="mode-name">Chords</span>
+          <span class="mode-desc">Hear a chord, name its quality.</span>
+        </span>
+        <svg class="chev" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <button type="button" class="mode-card" id="openMelody">
+        <span class="mode-art"><svg id="hubMelodyArt" aria-hidden="true"></svg></span>
+        <span class="mode-text">
+          <span class="mode-name">Melody</span>
+          <span class="mode-desc">Hear a melody, play it back.</span>
+        </span>
+        <svg class="chev" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <button type="button" class="mode-card" id="openProgressions">
+        <span class="mode-art"><svg id="hubProgArt" aria-hidden="true"></svg></span>
+        <span class="mode-text">
+          <span class="mode-name">Progressions</span>
+          <span class="mode-desc">Hear a progression, name each chord.</span>
+        </span>
+        <svg class="chev" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+  </section>
+
+  <!-- Clefs: setup -->
+  <section id="clefsSetup" class="screen setup" hidden>
+    <div class="setup-head">
+      <button type="button" class="icon-btn" data-hub aria-label="Back to all drills">
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <div>
+        <h1 class="setup-title">Clefs</h1>
+        <p class="setup-sub">Read the note on the staff, then play it on the keyboard.</p>
+      </div>
+    </div>
+
+    <div class="field">
+      <h2 class="label">Clefs</h2>
+      <div class="clef-grid" id="clefGrid"></div>
+    </div>
+
+    <div class="field">
+      <h2 class="label" id="countLabel">Notes per round</h2>
+      <div class="segmented" id="countGroup" role="radiogroup" aria-labelledby="countLabel"></div>
+    </div>
+
+    <button type="button" class="option-row" id="accToggle" role="switch" aria-checked="false">
+      <span class="option-text">
+        <span class="option-name">Accidentals</span>
+        <span class="option-desc">Mix sharps and flats into the notes</span>
+      </span>
+      <span class="switch" aria-hidden="true"></span>
+    </button>
+
+    <div class="field">
+      <button type="button" id="startBtn" class="btn primary">Start</button>
+      <p class="hint" id="hint" hidden>Pick at least one clef to start.</p>
+    </div>
+  </section>
+
+  <!-- Clefs: game -->
+  <section id="clefsGame" class="screen game" hidden>
+    <div class="topbar">
+      <button type="button" id="quitBtn" class="icon-btn" aria-label="Stop and go back">
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+      </button>
+      <div class="progress">
+        <div class="bar"><span id="progressFill"></span></div>
+        <span class="count" id="progressText">1 / 10</span>
+      </div>
+    </div>
+
+    <div class="stage" id="clefsStage">
+      <div class="staff-card" id="clefsCard">
+        <div class="staff-scroll" id="staffScroll">
+          <svg id="staff" class="staff" role="img" aria-label="Staff with notes to play"></svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="piano-wrap">
+      <div class="piano">
+        <div class="keys" id="keys"></div>
+      </div>
+      <p class="keys-hint">You can also type the letters A–G.</p>
+    </div>
+  </section>
+
+  <!-- Intervals: setup -->
+  <section id="intervalsSetup" class="screen setup" hidden>
+    <div class="setup-head">
+      <button type="button" class="icon-btn" data-hub aria-label="Back to all drills">
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <div>
+        <h1 class="setup-title">Intervals</h1>
+        <p class="setup-sub">Listen, then name the distance between the two notes.</p>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="label-row">
+        <h2 class="label">Intervals</h2>
+        <button type="button" class="text-btn" id="ivAll">Select all</button>
+      </div>
+      <div class="iv-grid" id="ivGrid"></div>
+    </div>
+
+    <div class="field">
+      <h2 class="label">Direction</h2>
+      <div class="dir-row" id="dirGroup"></div>
+    </div>
+
+    <div class="field">
+      <h2 class="label" id="ivCountLabel">Intervals per round</h2>
+      <div class="segmented" id="ivCountGroup" role="radiogroup" aria-labelledby="ivCountLabel"></div>
+    </div>
+
+    <div class="field">
+      <button type="button" id="ivStartBtn" class="btn primary">Begin</button>
+      <p class="hint" id="ivHint" hidden></p>
+    </div>
+  </section>
+
+  <!-- Chords: setup -->
+  <section id="chordsSetup" class="screen setup" hidden>
+    <div class="setup-head">
+      <button type="button" class="icon-btn" data-hub aria-label="Back to all drills">
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <div>
+        <h1 class="setup-title">Chords</h1>
+        <p class="setup-sub">Listen, then name the kind of chord.</p>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="label-row">
+        <h2 class="label">Chord types</h2>
+        <button type="button" class="text-btn" id="chAll">Select all</button>
+      </div>
+      <div class="chord-sections" id="chordSections"></div>
+    </div>
+
+    <div class="field">
+      <h2 class="label">Direction</h2>
+      <div class="dir-row" id="chDirGroup"></div>
+    </div>
+
+    <div class="split-row">
+      <button type="button" class="option-row" id="invToggle" role="switch" aria-checked="false">
+        <span class="option-text">
+          <span class="option-name">Inversions</span>
+          <span class="option-desc" id="invDesc">Root position only</span>
+        </span>
+        <span class="switch" aria-hidden="true"></span>
+      </button>
+      <div class="field">
+        <h2 class="label" id="chCountLabel">Chords per round</h2>
+        <div class="segmented" id="chCountGroup" role="radiogroup" aria-labelledby="chCountLabel"></div>
+      </div>
+    </div>
+
+    <div class="field">
+      <button type="button" id="chStartBtn" class="btn primary">Begin</button>
+      <p class="hint" id="chHint" hidden></p>
+    </div>
+  </section>
+
+  <!-- Listening game (Intervals and Chords) -->
+  <section id="earGame" class="screen game" hidden>
+    <div class="topbar">
+      <button type="button" id="earQuitBtn" class="icon-btn" aria-label="Stop and go back">
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+      </button>
+      <div class="progress">
+        <div class="bar"><span id="earProgressFill"></span></div>
+        <span class="count" id="earProgressText">1 / 10</span>
+      </div>
+    </div>
+
+    <div class="stage" id="earStage">
+      <div class="staff-card grand-card" id="earCard">
+        <div class="grand-wrap" id="grandWrap">
+          <svg id="grand" class="staff" role="img" aria-label="Grand staff showing the first note"></svg>
+        </div>
+        <div class="stage-row" id="earStageRow">
+          <span class="caption" id="earCaption"></span>
+          <div class="stage-actions">
+            <button type="button" class="btn ghost" id="replayBtn">
+              <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+              Hear again
+            </button>
+            <button type="button" class="btn primary small" id="continueBtn" hidden>Continue</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="answers">
+      <div class="answer-grid" id="answerGrid"></div>
+      <p class="keys-hint">Space hears it again · Enter continues after a mistake</p>
+    </div>
+  </section>
+
+  <!-- Melody: setup -->
+  <section id="melodySetup" class="screen setup" hidden>
+    <div class="setup-head">
+      <button type="button" class="icon-btn" data-hub aria-label="Back to all drills">
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <div>
+        <h1 class="setup-title">Melody</h1>
+        <p class="setup-sub">Listen, then play the melody back. The first note is given.</p>
+      </div>
+    </div>
+
+    <div class="field">
+      <h2 class="label" id="levelLabel">Difficulty</h2>
+      <div class="level-grid" id="levelGrid" role="radiogroup" aria-labelledby="levelLabel"></div>
+    </div>
+
+    <button type="button" class="option-row" id="keyChordToggle" role="switch" aria-checked="true">
+      <span class="option-text">
+        <span class="option-name">Key chord first</span>
+        <span class="option-desc">Hear the home chord before each melody</span>
+      </span>
+      <span class="switch" aria-hidden="true"></span>
+    </button>
+
+    <div class="field">
+      <h2 class="label" id="mCountLabel">Melodies per round</h2>
+      <div class="segmented" id="mCountGroup" role="radiogroup" aria-labelledby="mCountLabel"></div>
+    </div>
+
+    <div class="field">
+      <button type="button" id="mStartBtn" class="btn primary">Start</button>
+    </div>
+  </section>
+
+  <!-- Melody: game -->
+  <section id="melodyGame" class="screen game" hidden>
+    <div class="topbar">
+      <button type="button" id="mQuitBtn" class="icon-btn" aria-label="Stop and go back">
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+      </button>
+      <div class="progress">
+        <div class="bar"><span id="mProgressFill"></span></div>
+        <span class="count" id="mProgressText">1 / 5</span>
+      </div>
+    </div>
+
+    <div class="stage" id="mStage">
+      <div class="staff-card grand-card" id="mCard">
+        <div class="staff-scroll" id="mScroll">
+          <svg id="mStaff" class="staff" role="img" aria-label="Staff with the notes you have entered"></svg>
+        </div>
+        <div class="stage-row">
+          <span class="caption" id="mCaption"></span>
+          <div class="stage-actions">
+            <button type="button" class="btn ghost" id="mReplay">
+              <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+              Hear again
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="melody-input">
+      <div class="melody-controls">
+        <div class="octave-ctrl">
+          <button type="button" class="ctrl-btn" id="mDown" aria-label="Octave down">−8va</button>
+          <span class="octave-label" id="mOctave">C4–B4</span>
+          <button type="button" class="ctrl-btn" id="mUp" aria-label="Octave up">+8va</button>
+        </div>
+        <span class="note-count" id="mCount"></span>
+        <button type="button" class="ctrl-btn" id="mDelete">
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M9 5h11v14H9l-6-7 6-7z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M12 9l5 6M17 9l-5 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          Delete
+        </button>
+      </div>
+      <div class="piano melody-piano">
+        <div class="keys" id="mKeys"></div>
+      </div>
+      <button type="button" class="btn primary" id="mConfirm" disabled>Confirm</button>
+      <p class="keys-hint">Keys A–J and W E T Y U play notes · Z / X change octave · Backspace deletes · Enter confirms</p>
+    </div>
+  </section>
+
+  <!-- Progressions: setup -->
+  <section id="progSetup" class="screen setup" hidden>
+    <div class="setup-head">
+      <button type="button" class="icon-btn" data-hub aria-label="Back to all drills">
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <div>
+        <h1 class="setup-title">Progressions</h1>
+        <p class="setup-sub">Listen, then name each chord by its scale degree.</p>
+      </div>
+    </div>
+
+    <div class="field">
+      <h2 class="label" id="pLevelLabel">Difficulty</h2>
+      <div class="level-grid" id="pLevelGrid" role="radiogroup" aria-labelledby="pLevelLabel"></div>
+    </div>
+
+    <p class="numeral-note">Numerals count from the key's home note using the major scale, so in a minor key the chord on the 6th note is ♭VI. Upper case is major, lower case minor, ° diminished. Sevenths are played but not part of the answer.</p>
+
+    <button type="button" class="option-row" id="pKeyChordToggle" role="switch" aria-checked="true">
+      <span class="option-text">
+        <span class="option-name">Key chord first</span>
+        <span class="option-desc">Hear the home chord before each progression</span>
+      </span>
+      <span class="switch" aria-hidden="true"></span>
+    </button>
+
+    <div class="field">
+      <h2 class="label" id="pCountLabel">Progressions per round</h2>
+      <div class="segmented" id="pCountGroup" role="radiogroup" aria-labelledby="pCountLabel"></div>
+    </div>
+
+    <div class="field">
+      <button type="button" id="pStartBtn" class="btn primary">Start</button>
+    </div>
+  </section>
+
+  <!-- Progressions: game -->
+  <section id="progGame" class="screen game" hidden>
+    <div class="topbar">
+      <button type="button" id="pQuitBtn" class="icon-btn" aria-label="Stop and go back">
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+      </button>
+      <div class="progress">
+        <div class="bar"><span id="pProgressFill"></span></div>
+        <span class="count" id="pProgressText">1 / 5</span>
+      </div>
+    </div>
+
+    <div class="stage" id="pStage">
+      <div class="staff-card grand-card" id="pCard">
+        <div class="staff-scroll" id="pScroll">
+          <svg id="pStaff" class="staff" role="img" aria-label="Your answers, and the chords once you confirm"></svg>
+        </div>
+        <div class="stage-row">
+          <span class="caption" id="pCaption"></span>
+          <div class="stage-actions">
+            <button type="button" class="btn ghost" id="pReplay">
+              <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+              Hear again
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="prog-input">
+      <div class="pad" id="pPad"></div>
+      <div class="prog-controls">
+        <button type="button" class="ctrl-btn" id="pDelete">
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M9 5h11v14H9l-6-7 6-7z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M12 9l5 6M17 9l-5 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          Delete
+        </button>
+        <button type="button" class="btn primary" id="pConfirm" disabled>Confirm</button>
+      </div>
+      <p class="keys-hint">Backspace deletes · Enter confirms · Space plays it again</p>
+    </div>
+  </section>
+
+  <!-- Stats -->
+  <section id="stats" class="screen stats-screen" hidden>
+    <div class="stats-head">
+      <button type="button" class="icon-btn" data-hub aria-label="Back to all drills">
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <h1 class="setup-title">Stats</h1>
+      <button type="button" class="text-btn small" id="statsReset">Reset stats</button>
+    </div>
+    <div class="segmented stats-tabs" id="statsTabs" role="tablist" aria-label="Drill"></div>
+    <div class="segmented stats-views" id="statsViews" role="radiogroup" aria-label="Show">
+      <button type="button" role="radio" data-view="progress">Progress</button>
+      <button type="button" role="radio" data-view="map">By note</button>
+      <button type="button" role="radio" data-view="mixups">Mix-ups</button>
+    </div>
+
+    <div class="stats-body" id="statsBody">
+      <section class="stats-panel" data-panel="progress">
+        <div class="tiles" id="statTiles"></div>
+        <div class="chart-block">
+          <h3 class="panel-title" id="timeTitle">Avg. time by round</h3>
+          <div class="chart" id="timeChart"></div>
+        </div>
+        <div class="chart-block">
+          <h3 class="panel-title">Accuracy, by round</h3>
+          <div class="chart" id="accChart"></div>
+        </div>
+      </section>
+
+      <section class="stats-panel" data-panel="map">
+        <div class="panel-head">
+          <h3 class="panel-title" id="mapTitle">By note</h3>
+          <div class="segmented mini" id="clefPick" role="radiogroup" aria-label="Clef"></div>
+        </div>
+        <div class="map-box" id="mapBox"></div>
+        <div class="legend" aria-hidden="true">
+          <span><i class="sw ok"></i>85%+</span>
+          <span><i class="sw mid"></i>60–84%</span>
+          <span><i class="sw bad"></i>under 60%</span>
+          <span class="legend-faint">faded: under 3 tries</span>
+        </div>
+        <div class="best-worst" id="bestWorst"></div>
+      </section>
+
+      <section class="stats-panel" data-panel="mixups">
+        <h3 class="panel-title">Mix-ups: what you answered instead</h3>
+        <div class="mixups" id="mixups"></div>
+      </section>
+    </div>
+    <div class="stats-tip" id="statsTip" role="tooltip" hidden></div>
+  </section>
+
+  <!-- Results (shared) -->
+  <section id="results" class="screen results" hidden>
+    <h2 class="results-title">Round complete</h2>
+    <div class="stats">
+      <div class="stat">
+        <span class="stat-value" id="accValue">0%</span>
+        <span class="stat-label">Accuracy</span>
+      </div>
+      <div class="stat">
+        <span class="stat-value" id="timeValue">0.00 s</span>
+        <span class="stat-label" id="timeLabel">Avg. time per note</span>
+      </div>
+    </div>
+    <div class="summary-block">
+      <p class="summary" id="summary"></p>
+      <p class="summary" id="extra" hidden></p>
+    </div>
+
+    <div class="staff-card review" id="reviewCard">
+      <div class="staff-scroll" id="reviewScroll">
+        <svg id="review" class="staff" role="img" aria-label="Your answers on the staff"></svg>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button type="button" id="againBtn" class="btn primary">Play again</button>
+      <button type="button" id="settingsBtn" class="btn secondary">Change settings</button>
+    </div>
+  </section>
+
+</main>
+<script src="js/core.js"></script>
+<script src="js/clefs.js"></script>
+<script src="js/ear-game.js"></script>
+<script src="js/intervals.js"></script>
+<script src="js/chords.js"></script>
+<script src="js/melody.js"></script>
+<script src="js/progressions.js"></script>
+<script src="js/stats.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
