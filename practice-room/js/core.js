@@ -60,13 +60,17 @@ window.App = (() => {
   // ---------- Screens ----------
   let screen = 'hub';
   const GAME_SCREENS = new Set(['clefsGame', 'earGame', 'melodyGame', 'progGame']);
+  const showHooks = [];
   function show(name) {
     if (GAME_SCREENS.has(screen) && name !== screen) stopAll();   // leaving a drill silences it
+    const prev = screen;
     screen = name;
     for (const el of document.querySelectorAll('.screen')) el.hidden = el.id !== name;
     window.scrollTo(0, 0);
+    showHooks.forEach(fn => fn(name, prev));
   }
   const current = () => screen;
+  const onShow = fn => showHooks.push(fn);   // fn(newScreen, previousScreen)
 
   function setProgress(fillEl, textEl, done, total) {
     fillEl.closest('.progress').classList.remove('endless');
@@ -79,8 +83,9 @@ window.App = (() => {
   const LIVES = 3;
   const HEART = '<svg class="heart" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M12 20.5s-7.6-4.7-9.6-9.4C1 7.7 3.3 4.5 6.7 4.5c2.2 0 3.9 1.3 5.3 3.2 1.4-1.9 3.1-3.2 5.3-3.2 3.4 0 5.7 3.2 4.3 6.6-2 4.7-9.6 9.4-9.6 9.4z"/></svg>';
 
-  // The top bar during an endless run: hearts left instead of the progress bar, and the run so far.
-  function setRun(fillEl, textEl, lives, score) {
+  // The top bar during an endless run: hearts left instead of the progress bar, and the run
+  // so far (or text, when given).
+  function setRun(fillEl, textEl, lives, score, text) {
     const wrap = fillEl.closest('.progress');
     wrap.classList.add('endless');
     let hearts = wrap.querySelector('.hearts');
@@ -93,7 +98,7 @@ window.App = (() => {
     }
     [...hearts.children].forEach((h, i) => h.classList.toggle('lost', i >= lives));
     hearts.setAttribute('aria-label', `${lives} of ${LIVES} hearts left`);
-    textEl.textContent = `Run ${score}`;
+    textEl.textContent = text ?? `Run ${score}`;
   }
 
   // The "per round" picker: the fixed counts, then Endless.
@@ -540,14 +545,14 @@ window.App = (() => {
   // Per drill: finished rounds (for the progress charts), per-item tallies
   // (notes, intervals, chords) and mix-ups ("answer>guess" counts).
   const STATS_KEY = 'practice.stats.v1';
-  const STATS_MODES = ['clefs', 'intervals', 'chords', 'melody', 'progressions', 'intonation'];
+  const STATS_MODES = ['clefs', 'intervals', 'chords', 'melody', 'progressions', 'intonation', 'standards'];
   let stats = null;
 
   function readStats() {
     if (!stats) {
       const saved = loadSettings(STATS_KEY, {}, s => typeof s === 'object');
       stats = {};
-      for (const m of STATS_MODES) stats[m] = { rounds: [], items: {}, mixups: {}, endless: {}, ...saved[m] };
+      for (const m of STATS_MODES) stats[m] = { rounds: [], items: {}, mixups: {}, endless: {}, games: [], ...saved[m] };
     }
     return stats;
   }
@@ -586,6 +591,18 @@ window.App = (() => {
     saveStats();
     return { best: r.best, prev, isRecord: run > prev };
   }
+  // Standard Guesser games: { score, songs, avgMs }. Returns the bests before this game.
+  function recordGame(mode, game) {
+    const games = readStats()[mode].games;
+    const prev = {
+      score: Math.max(0, ...games.map(g => g.score)),
+      songs: Math.max(0, ...games.map(g => g.songs)),
+    };
+    games.push({ at: Date.now(), ...game });
+    if (games.length > 1000) games.shift();
+    saveStats();
+    return prev;
+  }
   function resetStats() {
     stats = null;
     try { localStorage.removeItem(STATS_KEY); } catch (e) { /* ignore */ }
@@ -598,11 +615,20 @@ window.App = (() => {
    * opts: correct, total, times (ms, one per answer), unit, statsKey, summary?, extra?,
    * review (fn(svg, fitPx) or null), onAgain, onSettings,
    * endless?: { level, name? } for an endless run (correct = the run's length)
+   * custom?: { title, tiles: [[value, label], [value, label]], summary } shown as given
    */
   function showResults(opts) {
     const { correct, total, times } = opts;
     const avg = times.reduce((a, b) => a + b, 0) / Math.max(1, times.length) / 1000;
-    if (opts.endless) {
+    if (opts.custom) {
+      const { title, tiles: [[v1, l1], [v2, l2]], summary } = opts.custom;
+      $('resultsTitle').textContent = title;
+      $('accValue').textContent = v1;
+      $('accLabel').textContent = l1;
+      $('timeValue').textContent = v2;
+      $('timeLabel').textContent = l2;
+      $('summary').textContent = summary;
+    } else if (opts.endless) {
       const rec = recordEndless(opts.statsKey, opts.endless.level, correct);
       const on = opts.endless.name ? ` on ${opts.endless.name}` : '';
       $('resultsTitle').textContent = 'Run over';
@@ -665,11 +691,11 @@ window.App = (() => {
   return {
     LETTERS, SEMIS, CLEFS, ACCIDENTALS, MUSIC_FONT, dia, diaName, diaMidi, accFor, noteName,
     $, randInt, pick, wait, reduceMotion, loadSettings, saveSettings, makeTimers,
-    show, current, setProgress, LIVES, setRun, countPicker,
+    show, current, onShow, setProgress, LIVES, setRun, countPicker,
     renderStaff, renderGrandStaff, roomFor, fitInStage, watchStage,
     ensureAudio, play, stopAll, makePiano, tapKey,
     showResults, onRedraw, boot,
-    readStats, recordItem, recordMixup, recordRound, recordEndless, resetStats,
+    readStats, recordItem, recordMixup, recordRound, recordEndless, recordGame, resetStats,
     // Drawing pieces for the stats page (staff units: one step = H)
     draw: { H, line, glyph, notePath, ledgers, columnParts, trebleTop: GS_TOP },
   };

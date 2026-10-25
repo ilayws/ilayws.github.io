@@ -75,6 +75,14 @@
         </span>
         <svg class="chev" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </button>
+      <button type="button" class="mode-card" id="openStandards">
+        <span class="mode-art"><svg class="disc" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="22" class="disc-vinyl"/><circle cx="24" cy="24" r="16" class="disc-groove"/><circle cx="24" cy="24" r="11" class="disc-groove"/><circle cx="24" cy="24" r="7" class="disc-label"/><circle cx="24" cy="24" r="1.6" class="disc-hole"/><path d="M24 4.5a19.5 19.5 0 0 1 16.9 9.75" class="disc-shine"/></svg></span>
+        <span class="mode-text">
+          <span class="mode-name">Standard Guesser</span>
+          <span class="mode-desc">Name the jazz standard.</span>
+        </span>
+        <svg class="chev" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
     </div>
   </section>
 
@@ -469,6 +477,83 @@
     </div>
   </section>
 
+  <!-- Standard Guesser: setup -->
+  <section id="standardsSetup" class="screen setup" hidden>
+    <div class="setup-head">
+      <button type="button" class="icon-btn" data-hub aria-label="Back to all drills">
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <div>
+        <h1 class="setup-title">Standard Guesser</h1>
+        <p class="setup-sub">Hear a classic recording and type the tune's name.</p>
+      </div>
+    </div>
+
+    <ul class="sg-rules">
+      <li><strong>3 hearts.</strong> A wrong answer or a skip costs one.</li>
+      <li><strong>Up to 1,000 points</strong> per tune. The longer you listen, the fewer you get.</li>
+      <li><strong><span id="sgCount">0</span> standards</strong> from the Real Book and beyond, in their best-known recordings.</li>
+      <li>Spelling doesn't have to be exact. Needs an internet connection: the music plays from YouTube.</li>
+    </ul>
+
+    <div class="tiles sg-bests">
+      <div class="tile"><span class="tile-value" id="sgBestScore">–</span><span class="tile-label">High score</span></div>
+      <div class="tile"><span class="tile-value" id="sgBestSongs">–</span><span class="tile-label">Most songs named</span></div>
+    </div>
+
+    <div class="field">
+      <button type="button" id="sgStartBtn" class="btn primary">Start</button>
+    </div>
+  </section>
+
+  <!-- Standard Guesser: game -->
+  <section id="standardsGame" class="screen game" hidden>
+    <div class="topbar">
+      <button type="button" id="sgQuitBtn" class="icon-btn" aria-label="Stop and go back">
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+      </button>
+      <div class="progress">
+        <div class="bar"><span id="sgProgressFill"></span></div>
+        <span class="count" id="sgProgressText">0 pts</span>
+      </div>
+    </div>
+
+    <div class="sg-wrap">
+      <div class="staff-card sg-card" id="sgCard" data-panel="now">
+        <div class="sg-player" id="sgPlayerBox" aria-hidden="true"><div id="sgPlayer"></div><div class="sg-cover"></div></div>
+        <div class="sg-now">
+          <svg class="disc" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="22" class="disc-vinyl"/><circle cx="24" cy="24" r="16" class="disc-groove"/><circle cx="24" cy="24" r="11" class="disc-groove"/><circle cx="24" cy="24" r="7" class="disc-label"/><circle cx="24" cy="24" r="1.6" class="disc-hole"/><path d="M24 4.5a19.5 19.5 0 0 1 16.9 9.75" class="disc-shine"/></svg>
+          <span class="sg-status" id="sgStatus" aria-live="polite"></span>
+          <span class="sg-clock" id="sgClock">0:00</span>
+          <span class="sg-worth" id="sgWorth"></span>
+        </div>
+        <p class="sg-tap-note">Tap ▶ to start the music</p>
+        <div class="sg-reveal" aria-live="polite">
+          <span class="sg-verdict" id="sgVerdict"></span>
+          <span class="sg-title" id="sgTitle"></span>
+          <span class="sg-by" id="sgBy"></span>
+          <span class="sg-said" id="sgSaid" hidden></span>
+          <a class="text-btn small" id="sgLink" target="_blank" rel="noopener">Listen on YouTube</a>
+        </div>
+        <div class="sg-error">
+          <p id="sgErrorText"></p>
+          <a class="text-btn" id="sgErrorLink" href="https://ilayws.github.io/practice-room/" target="_blank" rel="noopener">ilayws.github.io/practice-room</a>
+          <button type="button" class="btn secondary small" id="sgErrorBack">Back</button>
+        </div>
+      </div>
+
+      <form class="sg-form" id="sgForm" autocomplete="off">
+        <input type="text" id="sgInput" class="sg-input" placeholder="Name the tune" aria-label="Your answer" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="go">
+        <button type="submit" class="btn primary" id="sgGuess">Guess</button>
+      </form>
+      <div class="sg-actions">
+        <button type="button" class="btn secondary" id="sgSkip">Skip</button>
+        <button type="button" class="btn primary" id="sgNext" hidden>Next song</button>
+      </div>
+      <p class="keys-hint">Enter guesses · Enter again for the next song · Esc quits</p>
+    </div>
+  </section>
+
   <!-- Stats -->
   <section id="stats" class="screen stats-screen" hidden>
     <div class="stats-head">
@@ -497,7 +582,7 @@
           <div class="chart" id="timeChart"></div>
         </div>
         <div class="chart-block">
-          <h3 class="panel-title">Accuracy, by round</h3>
+          <h3 class="panel-title" id="accTitle">Accuracy, by round</h3>
           <div class="chart" id="accChart"></div>
         </div>
       </section>
@@ -564,6 +649,8 @@
 <script src="js/melody.js"></script>
 <script src="js/progressions.js"></script>
 <script src="js/intonation.js"></script>
+<script src="js/standards-data.js"></script>
+<script src="js/standards.js"></script>
 <script src="js/stats.js"></script>
 <script src="js/main.js"></script>
 </body>

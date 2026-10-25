@@ -6,7 +6,7 @@
 
   // unit: what the time is per; item: what accuracy is tracked for; source: the drill
   // module that knows each item's label and notes (for drawing it on the staff);
-  // levels: endless records are kept per difficulty
+  // levels: endless records are kept per difficulty; games: scored games instead of rounds
   const MODES = {
     clefs:        { name: 'Clefs',        unit: 'note',        item: 'note',     items: 'By note' },
     intervals:    { name: 'Intervals',    unit: 'interval',    item: 'interval', items: 'By interval', source: () => window.Intervals },
@@ -14,6 +14,7 @@
     melody:       { name: 'Melody',       unit: 'melody',                                                                          levels: true },
     progressions: { name: 'Progressions', unit: 'progression', item: 'chord',    items: 'By numeral',  source: () => window.Progressions, levels: true },
     intonation:   { name: 'Intonation',   unit: 'interval',    item: 'interval', items: 'By interval', source: () => window.Intonation,   levels: true },
+    standards:    { name: 'Standards',    unit: 'song',                                                                            games: true },
   };
   const labelFor = (m, id) => {
     const src = MODES[m].source && MODES[m].source();
@@ -196,7 +197,43 @@
     return t;
   }));
 
+  // Standard Guesser: high scores, then averages
+  function renderGameTiles(s) {
+    const g = s.games, n = g.length;
+    const named = g.filter(x => x.songs);
+    tilesInto($('statTiles'), [
+      ['High score', n ? Math.max(...g.map(x => x.score)).toLocaleString('en-US') : '–'],
+      ['Most songs', n ? String(Math.max(...g.map(x => x.songs))) : '–'],
+      ['Games played', String(n)],
+    ]);
+    $('endlessTitle').textContent = 'Averages';
+    tilesInto($('endlessTiles'), [
+      ['Score', n ? Math.round(sum(g, x => x.score) / n).toLocaleString('en-US') : '–'],
+      ['Songs / game', n ? (sum(g, x => x.songs) / n).toFixed(1) : '–'],
+      ['Time per song', named.length ? secs(sum(named, x => x.avgMs * x.songs) / sum(named, x => x.songs)) : '–'],
+    ]);
+  }
+
+  function renderGameCharts(s) {
+    const empty = 'Play a game of Standard Guesser to start the chart.';
+    $('timeTitle').textContent = 'Points, by game';
+    $('accTitle').textContent = 'Songs named, by game';
+    $('timeChart').chartData = {
+      pts: s.games.map((g, i) => ({ y: g.score, tip: [`${g.score.toLocaleString('en-US')} points`, `Game ${i + 1} · ${g.songs} ${g.songs === 1 ? 'song' : 'songs'}`] })),
+      fmt: (v, tick) => (tick && v >= 1000 ? `${+(v / 1000).toFixed(1)}k` : Math.round(v).toLocaleString('en-US')),
+      empty,
+    };
+    $('accChart').chartData = {
+      pts: s.games.map((g, i) => ({ y: g.songs, tip: [`${g.songs} ${g.songs === 1 ? 'song' : 'songs'} named`, `Game ${i + 1} · ${g.score.toLocaleString('en-US')} points`] })),
+      fmt: v => String(Math.round(v)),
+      empty,
+    };
+    drawLine($('timeChart'));
+    drawLine($('accChart'));
+  }
+
   function renderTiles(s) {
+    if (MODES[mode].games) return renderGameTiles(s);
     const correct = sum(s.rounds, r => r.correct), total = sum(s.rounds, r => r.total);
     tilesInto($('statTiles'), [
       ['Rounds played', String(s.rounds.length)],
@@ -221,7 +258,9 @@
   }
 
   function renderCharts(s) {
+    if (MODES[mode].games) return renderGameCharts(s);
     const unit = MODES[mode].unit;
+    $('accTitle').textContent = 'Accuracy, by round';
     const empty = `Finish a round of ${MODES[mode].name} to start the chart.`;
     $('timeTitle').textContent = `Avg. time per ${unit}, by round`;
     $('timeChart').chartData = {
@@ -325,7 +364,7 @@
   }
 
   // ---------- Screen ----------
-  const viewsFor = m => (m === 'melody' ? ['progress'] : m === 'clefs' || m === 'intonation' ? ['progress', 'map'] : ['progress', 'map', 'mixups']);
+  const viewsFor = m => (m === 'melody' || m === 'standards' ? ['progress'] : m === 'clefs' || m === 'intonation' ? ['progress', 'map'] : ['progress', 'map', 'mixups']);
 
   function render() {
     const s = App.readStats()[mode];
@@ -352,7 +391,7 @@
     const all = App.readStats();
     if (!mode) {
       const last = m => Math.max(all[m].rounds.length ? all[m].rounds[all[m].rounds.length - 1].at : 0,
-        ...Object.values(all[m].endless || {}).map(r => r.last || 0));
+        ...Object.values(all[m].endless || {}).map(r => r.last || 0), ...(all[m].games || []).map(g => g.at));
       mode = Object.keys(MODES).sort((a, b) => last(b) - last(a))[0];
     }
     App.show('stats');
