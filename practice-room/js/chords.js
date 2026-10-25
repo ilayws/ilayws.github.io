@@ -60,6 +60,7 @@
   settings.types = settings.types.filter(id => id in BY_ID);
   settings.dirs = settings.dirs.filter(id => DIRS.some(d => d.id === id));
   settings.inversions = settings.inversions === true;
+  settings.endless = settings.endless === true;
   const save = () => App.saveSettings(KEY, settings);
 
   const sectionsEl = $('chordSections'), dirGroup = $('chDirGroup'), countGroup = $('chCountGroup');
@@ -71,6 +72,8 @@
     on.has(id) ? on.delete(id) : on.add(id);
     return order.filter(x => on.has(x));
   }
+
+  const syncCount = App.countPicker(countGroup, COUNTS, settings, () => { save(); syncSetup(); }, 'chcount');
 
   function buildSetup() {
     sectionsEl.innerHTML = SECTIONS.map(s => `
@@ -89,8 +92,6 @@
       </div>`).join('');
     dirGroup.innerHTML = DIRS.map(d =>
       `<button type="button" class="chip dir-chip" id="chdir-${d.id}" data-dir="${d.id}" aria-pressed="false">${d.name}</button>`).join('');
-    countGroup.innerHTML = COUNTS.map(n =>
-      `<button type="button" role="radio" id="chcount-${n}" data-count="${n}" aria-checked="false">${n}</button>`).join('');
 
     sectionsEl.addEventListener('click', e => {
       const chip = e.target.closest('[data-chord]');
@@ -119,13 +120,6 @@
       save();
       syncSetup();
     });
-    countGroup.addEventListener('click', e => {
-      const b = e.target.closest('[data-count]');
-      if (!b) return;
-      settings.count = Number(b.dataset.count);
-      save();
-      syncSetup();
-    });
     invToggle.addEventListener('click', () => {
       settings.inversions = !settings.inversions;
       save();
@@ -140,7 +134,7 @@
       $(`sec-${s.id}`).textContent = allOn ? 'None' : 'All';
     }
     for (const b of dirGroup.querySelectorAll('[data-dir]')) b.setAttribute('aria-pressed', String(settings.dirs.includes(b.dataset.dir)));
-    for (const b of countGroup.querySelectorAll('[data-count]')) b.setAttribute('aria-checked', String(Number(b.dataset.count) === settings.count));
+    syncCount();
     invToggle.setAttribute('aria-checked', String(settings.inversions));
     $('invDesc').textContent = settings.inversions ? 'Inversions & open voicings' : 'Root position only';
     allBtn.textContent = settings.types.length === CHORDS.length ? 'Clear all' : 'Select all';
@@ -238,6 +232,7 @@
       total: settings.count,
       unit: 'chord',
       statsKey: 'chords',
+      endless: settings.endless ? { level: 'any' } : null,
       colWidth: 118,
       choices: settings.types.map(id => ({ id, label: BY_ID[id].label, name: BY_ID[id].name })),
       makeQuestion, play, caption, columns,

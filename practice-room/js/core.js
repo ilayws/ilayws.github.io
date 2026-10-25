@@ -69,8 +69,53 @@ window.App = (() => {
   const current = () => screen;
 
   function setProgress(fillEl, textEl, done, total) {
+    fillEl.closest('.progress').classList.remove('endless');
     fillEl.style.width = `${(Math.min(done, total) / total) * 100}%`;
     textEl.textContent = `${Math.min(done + 1, total)} / ${total}`;
+  }
+
+  // ---------- Endless runs ----------
+  // Keep going until LIVES misses; the run's length is how many you got right.
+  const LIVES = 3;
+  const HEART = '<svg class="heart" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M12 20.5s-7.6-4.7-9.6-9.4C1 7.7 3.3 4.5 6.7 4.5c2.2 0 3.9 1.3 5.3 3.2 1.4-1.9 3.1-3.2 5.3-3.2 3.4 0 5.7 3.2 4.3 6.6-2 4.7-9.6 9.4-9.6 9.4z"/></svg>';
+
+  // The top bar during an endless run: hearts left instead of the progress bar, and the run so far.
+  function setRun(fillEl, textEl, lives, score) {
+    const wrap = fillEl.closest('.progress');
+    wrap.classList.add('endless');
+    let hearts = wrap.querySelector('.hearts');
+    if (!hearts) {
+      hearts = document.createElement('span');
+      hearts.className = 'hearts';
+      hearts.setAttribute('role', 'img');
+      hearts.innerHTML = HEART.repeat(LIVES);
+      wrap.prepend(hearts);
+    }
+    [...hearts.children].forEach((h, i) => h.classList.toggle('lost', i >= lives));
+    hearts.setAttribute('aria-label', `${lives} of ${LIVES} hearts left`);
+    textEl.textContent = `Run ${score}`;
+  }
+
+  // The "per round" picker: the fixed counts, then Endless.
+  // settings.count keeps the last number picked; settings.endless is true for Endless.
+  // Returns a function that marks the current choice.
+  function countPicker(el, counts, settings, onChange, idPrefix) {
+    el.innerHTML = counts.map(n =>
+      `<button type="button" role="radio" id="${idPrefix}-${n}" data-count="${n}" aria-checked="false">${n}</button>`).join('') +
+      `<button type="button" role="radio" id="${idPrefix}-endless" class="endless-opt" data-count="endless" aria-checked="false" aria-label="Endless: keep going until you miss ${LIVES} times" title="Keep going until you miss ${LIVES} times"><span aria-hidden="true">∞</span><span class="endless-word" aria-hidden="true">Endless</span></button>`;
+    el.addEventListener('click', e => {
+      const b = e.target.closest('[data-count]');
+      if (!b) return;
+      settings.endless = b.dataset.count === 'endless';
+      if (!settings.endless) settings.count = Number(b.dataset.count);
+      onChange();
+    });
+    return () => {
+      for (const b of el.children) {
+        const on = settings.endless ? b.dataset.count === 'endless' : Number(b.dataset.count) === settings.count;
+        b.setAttribute('aria-checked', String(on));
+      }
+    };
   }
 
   // ---------- Staff drawing (SVG) ----------
@@ -502,7 +547,7 @@ window.App = (() => {
     if (!stats) {
       const saved = loadSettings(STATS_KEY, {}, s => typeof s === 'object');
       stats = {};
-      for (const m of STATS_MODES) stats[m] = { rounds: [], items: {}, mixups: {}, ...saved[m] };
+      for (const m of STATS_MODES) stats[m] = { rounds: [], items: {}, mixups: {}, endless: {}, ...saved[m] };
     }
     return stats;
   }
@@ -529,6 +574,18 @@ window.App = (() => {
     if (rounds.length > 500) rounds.shift();
     saveStats();
   }
+  // Endless runs, per difficulty ('easy' | 'medium' | 'hard', or 'any' for drills without one)
+  function recordEndless(mode, level, run) {
+    const all = readStats()[mode].endless;
+    const r = all[level] || (all[level] = { best: 0, runs: 0, total: 0 });
+    const prev = r.best;
+    r.runs++;
+    r.total += run;
+    r.last = Date.now();
+    if (run > r.best) { r.best = run; r.at = Date.now(); }
+    saveStats();
+    return { best: r.best, prev, isRecord: run > prev };
+  }
   function resetStats() {
     stats = null;
     try { localStorage.removeItem(STATS_KEY); } catch (e) { /* ignore */ }
@@ -537,15 +594,33 @@ window.App = (() => {
   // ---------- Results ----------
   let resultsReview = null, resultsAgain = null, resultsSettings = null;
 
-  /** opts: correct, total, times (ms, one per answer), unit, statsKey, summary?, extra?, review (fn(svg, fitPx) or null), onAgain, onSettings */
+  /**
+   * opts: correct, total, times (ms, one per answer), unit, statsKey, summary?, extra?,
+   * review (fn(svg, fitPx) or null), onAgain, onSettings,
+   * endless?: { level, name? } for an endless run (correct = the run's length)
+   */
   function showResults(opts) {
     const { correct, total, times } = opts;
     const avg = times.reduce((a, b) => a + b, 0) / Math.max(1, times.length) / 1000;
-    if (opts.statsKey) recordRound(opts.statsKey, { avgMs: Math.round(avg * 1000), correct, total });
-    $('accValue').textContent = `${Math.round((correct / total) * 100)}%`;
-    $('timeValue').textContent = `${avg.toFixed(2)} s`;
-    $('timeLabel').textContent = `Avg. time per ${opts.unit}`;
-    $('summary').textContent = opts.summary || `${correct} of ${total} ${opts.unit}s correct.`;
+    if (opts.endless) {
+      const rec = recordEndless(opts.statsKey, opts.endless.level, correct);
+      const on = opts.endless.name ? ` on ${opts.endless.name}` : '';
+      $('resultsTitle').textContent = 'Run over';
+      $('accValue').textContent = String(correct);
+      $('accLabel').textContent = 'Run length';
+      $('timeValue').textContent = String(rec.best);
+      $('timeLabel').textContent = `Longest run${on}`;
+      const record = rec.isRecord ? (rec.prev ? `New record${on}, up from ${rec.prev}! ` : `New record${on}! `) : '';
+      $('summary').textContent = `${record}${opts.summary || `${correct} ${correct === 1 ? opts.unit : `${opts.unit}s`} right before ${LIVES} misses.`} ${avg.toFixed(2)} s per ${opts.unit}.`;
+    } else {
+      if (opts.statsKey) recordRound(opts.statsKey, { avgMs: Math.round(avg * 1000), correct, total });
+      $('resultsTitle').textContent = 'Round complete';
+      $('accValue').textContent = `${Math.round((correct / total) * 100)}%`;
+      $('accLabel').textContent = 'Accuracy';
+      $('timeValue').textContent = `${avg.toFixed(2)} s`;
+      $('timeLabel').textContent = `Avg. time per ${opts.unit}`;
+      $('summary').textContent = opts.summary || `${correct} of ${total} ${opts.unit}s correct.`;
+    }
     $('extra').textContent = opts.extra || '';
     $('extra').hidden = !opts.extra;
     resultsReview = opts.review || null;
@@ -590,11 +665,11 @@ window.App = (() => {
   return {
     LETTERS, SEMIS, CLEFS, ACCIDENTALS, MUSIC_FONT, dia, diaName, diaMidi, accFor, noteName,
     $, randInt, pick, wait, reduceMotion, loadSettings, saveSettings, makeTimers,
-    show, current, setProgress,
+    show, current, setProgress, LIVES, setRun, countPicker,
     renderStaff, renderGrandStaff, roomFor, fitInStage, watchStage,
     ensureAudio, play, stopAll, makePiano, tapKey,
     showResults, onRedraw, boot,
-    readStats, recordItem, recordMixup, recordRound, resetStats,
+    readStats, recordItem, recordMixup, recordRound, recordEndless, resetStats,
     // Drawing pieces for the stats page (staff units: one step = H)
     draw: { H, line, glyph, notePath, ledgers, columnParts, trebleTop: GS_TOP },
   };

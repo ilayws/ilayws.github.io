@@ -9,11 +9,13 @@
   const NO_SHARP = new Set([2, 6]), NO_FLAT = new Set([0, 3]);
   const COUNTS = [5, 10, 20, 30];
   const WRONG_PAUSE = 1000;
+  const LOOKAHEAD = 10;                  // endless: notes kept on the staff ahead of the current one
   const KEY = 'clefs.settings';
 
   const settings = App.loadSettings(KEY, { clefs: ['treble', 'bass'], count: 10, accidentals: false },
     s => Array.isArray(s.clefs) && COUNTS.includes(s.count));
   settings.clefs = settings.clefs.filter(c => c in CLEFS);
+  settings.endless = settings.endless === true;
   const save = () => App.saveSettings(KEY, settings);
 
   const clefGrid = $('clefGrid'), countGroup = $('countGroup');
@@ -24,6 +26,8 @@
   const timers = App.makeTimers();
 
   // ---------- Setup ----------
+  const syncCount = App.countPicker(countGroup, COUNTS, settings, () => { save(); syncSetup(); }, 'count');
+
   function buildSetup() {
     clefGrid.innerHTML = Object.entries(CLEFS).map(([k, c]) => `
       <button type="button" class="clef-tile" id="clef-${k}" data-clef="${k}" aria-pressed="false">
@@ -32,9 +36,6 @@
         <span class="range">${diaName(c.bottomLine + P_MIN)}–${diaName(c.bottomLine + P_MAX)}</span>
       </button>`).join('');
 
-    countGroup.innerHTML = COUNTS.map(n =>
-      `<button type="button" role="radio" id="count-${n}" data-count="${n}" aria-checked="false">${n}</button>`).join('');
-
     clefGrid.addEventListener('click', e => {
       const tile = e.target.closest('[data-clef]');
       if (!tile) return;
@@ -42,13 +43,6 @@
       settings.clefs = settings.clefs.includes(k)
         ? settings.clefs.filter(c => c !== k)
         : Object.keys(CLEFS).filter(c => c === k || settings.clefs.includes(c));
-      save();
-      syncSetup();
-    });
-    countGroup.addEventListener('click', e => {
-      const b = e.target.closest('[data-count]');
-      if (!b) return;
-      settings.count = Number(b.dataset.count);
       save();
       syncSetup();
     });
@@ -63,9 +57,7 @@
     for (const tile of clefGrid.querySelectorAll('[data-clef]')) {
       tile.setAttribute('aria-pressed', String(settings.clefs.includes(tile.dataset.clef)));
     }
-    for (const b of countGroup.querySelectorAll('[data-count]')) {
-      b.setAttribute('aria-checked', String(Number(b.dataset.count) === settings.count));
-    }
+    syncCount();
     accToggle.setAttribute('aria-checked', String(settings.accidentals));
     const none = settings.clefs.length === 0;
     startBtn.disabled = none;
@@ -86,11 +78,11 @@
   // Runs of 1–4 notes per clef; the clef changes between runs when more than one is picked.
   // The round reads as one long measure, so an accidental carries forward to later
   // notes of the same pitch; those get a natural sign when they go back to natural.
-  function generate(n, clefs, withAcc) {
-    const out = [];
+  // noteStream returns a function that gives the next note each time it's called.
+  function noteStream(clefs, withAcc) {
     const carried = new Map();   // diatonic note -> alteration still in effect
     let clef = pick(clefs), run = randInt(1, 4), prev = null;
-    for (let k = 0; k < n; k++) {
+    return () => {
       if (run === 0) {
         if (clefs.length > 1) clef = pick(clefs.filter(c => c !== clef));
         run = randInt(1, 4);
@@ -118,9 +110,8 @@
       else if (alter === -1) acc = 'flat';
       else if (inEffect !== 0) acc = 'natural';
       carried.set(d, alter);
-      out.push({ clef, p, acc, midi });
-    }
-    return out;
+      return { clef, p, acc, midi };
+    };
   }
 
   function itemsFor(notes, results, current) {
@@ -143,8 +134,13 @@
   function start() {
     App.ensureAudio();
     clearFeedback();
+    const next = noteStream(settings.clefs, settings.accidentals);
+    const endless = settings.endless;
     game = {
-      notes: generate(settings.count, settings.clefs, settings.accidentals),
+      endless,
+      next,
+      lives: App.LIVES,
+      notes: Array.from({ length: endless ? LOOKAHEAD + 1 : settings.count }, next),
       i: 0,
       results: [],
       times: [],
@@ -161,7 +157,8 @@
     const items = itemsFor(notes, game.results, i);
     const layout = App.fitInStage(stageEl, cardEl, staffScroll, maxHeight =>
       App.renderStaff(staffSvg, items, { fit: staffScroll.clientWidth, maxHeight, min: 1, max: 1.6 }));
-    App.setProgress($('progressFill'), $('progressText'), i, notes.length);
+    if (game.endless) App.setRun($('progressFill'), $('progressText'), game.lives, game.results.filter(r => r === 'ok').length);
+    else App.setProgress($('progressFill'), $('progressText'), i, notes.length);
 
     const x = layout.noteX[Math.min(i, notes.length - 1)] * layout.scale;
     staffScroll.scrollTo({
@@ -191,12 +188,14 @@
     } else {
       game.results[game.i] = 'bad';
       game.locked = true;
+      game.lives--;
       keyEls[pc].classList.add('bad');
       keyEls[targetPc].classList.add('ok');
       drawGame();
       timers.later(() => {
         keyEls[pc].classList.remove('bad');
         keyEls[targetPc].classList.remove('ok');
+        if (game.endless && game.lives <= 0) return finish();
         game.locked = false;
         advance();
       }, WRONG_PAUSE);
@@ -205,6 +204,7 @@
 
   function advance() {
     game.i++;
+    if (game.endless) while (game.notes.length - game.i <= LOOKAHEAD) game.notes.push(game.next());
     drawGame();
     if (game.i >= game.notes.length) {
       game.locked = true;
@@ -216,12 +216,14 @@
 
   function finish() {
     const done = game;
+    done.notes = done.notes.slice(0, done.results.length);   // endless: drop the notes still ahead
     App.showResults({
       correct: done.results.filter(r => r === 'ok').length,
       total: done.notes.length,
       times: done.times,
       unit: 'note',
       statsKey: 'clefs',
+      endless: done.endless ? { level: 'any' } : null,
       review: (svg, fit) => App.renderStaff(svg, itemsFor(done.notes, done.results, -1), { fit, min: 0.6, max: 1.2 }),
       onAgain: start,
       onSettings: openSetup,

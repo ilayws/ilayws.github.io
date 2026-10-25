@@ -48,6 +48,7 @@
   const settings = App.loadSettings(KEY, { level: 'easy', count: 5, keyChord: true },
     s => s.level in LEVELS && COUNTS.includes(s.count));
   settings.keyChord = settings.keyChord !== false;
+  settings.endless = settings.endless === true;
   const save = () => App.saveSettings(KEY, settings);
 
   // ---------- Melody generator ----------
@@ -213,6 +214,7 @@
 
   // ---------- Setup ----------
   const levelGrid = $('levelGrid'), countGroup = $('mCountGroup'), chordToggle = $('keyChordToggle');
+  const syncCount = App.countPicker(countGroup, COUNTS, settings, () => { save(); syncSetup(); }, 'mcount');
 
   function buildSetup() {
     levelGrid.innerHTML = Object.entries(LEVELS).map(([id, L]) => `
@@ -221,20 +223,11 @@
         <span class="level-notes">${L.notes} notes</span>
         <span class="level-desc">${L.desc}</span>
       </button>`).join('');
-    countGroup.innerHTML = COUNTS.map(n =>
-      `<button type="button" role="radio" id="mcount-${n}" data-count="${n}" aria-checked="false">${n}</button>`).join('');
 
     levelGrid.addEventListener('click', e => {
       const b = e.target.closest('[data-level]');
       if (!b) return;
       settings.level = b.dataset.level;
-      save();
-      syncSetup();
-    });
-    countGroup.addEventListener('click', e => {
-      const b = e.target.closest('[data-count]');
-      if (!b) return;
-      settings.count = Number(b.dataset.count);
       save();
       syncSetup();
     });
@@ -247,7 +240,7 @@
 
   function syncSetup() {
     for (const b of levelGrid.querySelectorAll('[data-level]')) b.setAttribute('aria-checked', String(b.dataset.level === settings.level));
-    for (const b of countGroup.querySelectorAll('[data-count]')) b.setAttribute('aria-checked', String(Number(b.dataset.count) === settings.count));
+    syncCount();
     chordToggle.setAttribute('aria-checked', String(settings.keyChord));
   }
 
@@ -273,11 +266,12 @@
   async function start() {
     const loading = App.ensureAudio();
     timers.clear();
-    game = { level: LEVELS[settings.level], i: 0, total: settings.count, correct: 0, notes: 0, perfect: 0, times: [], m: null, phase: 'loading' };
+    const endless = settings.endless;
+    game = { level: LEVELS[settings.level], endless, lives: App.LIVES, i: 0, total: endless ? Infinity : settings.count, correct: 0, notes: 0, perfect: 0, times: [], m: null, phase: 'loading' };
     App.show('melodyGame');
     caption.textContent = 'Loading piano…';
     confirmBtn.disabled = true;
-    App.setProgress($('mProgressFill'), $('mProgressText'), 0, game.total);
+    showProgress();
     const g = game;
     await Promise.race([loading, App.wait(5000)]);
     if (game !== g) return;   // left the screen while loading
@@ -295,7 +289,7 @@
       start: 0,
     });
     caption.textContent = `${m.key.name} · ${m.notes.length} notes · first note given`;
-    App.setProgress($('mProgressFill'), $('mProgressText'), game.i, game.total);
+    showProgress();
     update();
     draw(true);
     timers.later(() => {
@@ -305,6 +299,12 @@
     }, 300);
   }
 
+  function showProgress() {
+    if (game.endless) App.setRun($('mProgressFill'), $('mProgressText'), game.lives, game.perfect);
+    else App.setProgress($('mProgressFill'), $('mProgressText'), game.i, game.total);
+  }
+  const isLast = () => (game.endless ? game.lives <= 0 : game.i + 1 >= game.total);
+
   function update() {
     const n = game.m ? game.m.notes.length : 0;
     $('mOctave').textContent = `C${game.octave}–B${game.octave}`;
@@ -313,7 +313,7 @@
     $('mCount').textContent = game.m ? `${game.input.length} / ${n}` : '';
     $('mDelete').disabled = game.phase !== 'input' || game.input.length <= 1;
     if (game.phase === 'review') {
-      confirmBtn.textContent = game.i + 1 >= game.total ? 'See results' : 'Next melody';
+      confirmBtn.textContent = isLast() ? 'See results' : 'Next melody';
       confirmBtn.disabled = false;
     } else {
       confirmBtn.textContent = 'Confirm';
@@ -382,6 +382,8 @@
     game.correct += right;
     game.notes += n - 1;
     if (right === n - 1) game.perfect++;
+    else game.lives--;
+    if (game.endless) showProgress();
     caption.textContent = right === n - 1 ? 'Every note correct' : `${right} of ${n - 1} notes correct · the right notes are in green`;
     update();
     draw();
@@ -389,20 +391,25 @@
   }
 
   function advance() {
+    const last = isLast();
     game.i++;
-    if (game.i >= game.total) return finish();
+    if (last) return finish();
     next();
   }
 
   function finish() {
     const g = game;
+    const plural = n => (n === 1 ? 'melody' : 'melodies');
     App.showResults({
-      correct: g.correct,
-      total: g.notes,
+      correct: g.endless ? g.perfect : g.correct,
+      total: g.endless ? g.i : g.notes,
       times: g.times,
       unit: 'melody',
       statsKey: 'melody',
-      summary: `${g.correct} of ${g.notes} notes correct · ${g.perfect} of ${g.total} ${g.total === 1 ? 'melody' : 'melodies'} perfect.`,
+      endless: g.endless ? { level: settings.level, name: g.level.name } : null,
+      summary: g.endless
+        ? `${g.perfect} perfect ${plural(g.perfect)} before ${App.LIVES} misses · ${g.correct} of ${g.notes} notes correct.`
+        : `${g.correct} of ${g.notes} notes correct · ${g.perfect} of ${g.total} ${plural(g.total)} perfect.`,
       review: null,
       onAgain: start,
       onSettings: openSetup,

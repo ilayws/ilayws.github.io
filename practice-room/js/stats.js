@@ -5,14 +5,15 @@
   const { H } = draw;
 
   // unit: what the time is per; item: what accuracy is tracked for; source: the drill
-  // module that knows each item's label and notes (for drawing it on the staff)
+  // module that knows each item's label and notes (for drawing it on the staff);
+  // levels: endless records are kept per difficulty
   const MODES = {
     clefs:        { name: 'Clefs',        unit: 'note',        item: 'note',     items: 'By note' },
     intervals:    { name: 'Intervals',    unit: 'interval',    item: 'interval', items: 'By interval', source: () => window.Intervals },
     chords:       { name: 'Chords',       unit: 'chord',       item: 'chord',    items: 'By chord',    source: () => window.Chords },
-    melody:       { name: 'Melody',       unit: 'melody' },
-    progressions: { name: 'Progressions', unit: 'progression', item: 'chord',    items: 'By numeral',  source: () => window.Progressions },
-    intonation:   { name: 'Intonation',   unit: 'interval',    item: 'interval', items: 'By interval', source: () => window.Intonation },
+    melody:       { name: 'Melody',       unit: 'melody',                                                                          levels: true },
+    progressions: { name: 'Progressions', unit: 'progression', item: 'chord',    items: 'By numeral',  source: () => window.Progressions, levels: true },
+    intonation:   { name: 'Intonation',   unit: 'interval',    item: 'interval', items: 'By interval', source: () => window.Intonation,   levels: true },
   };
   const labelFor = (m, id) => {
     const src = MODES[m].source && MODES[m].source();
@@ -189,18 +190,34 @@
     return labelFor(kind, id);
   }
 
+  const tilesInto = (box, tiles) => box.replaceChildren(...tiles.map(([label, value]) => {
+    const t = el('div', 'tile');
+    t.append(el('span', 'tile-value', value), el('span', 'tile-label', label));
+    return t;
+  }));
+
   function renderTiles(s) {
     const correct = sum(s.rounds, r => r.correct), total = sum(s.rounds, r => r.total);
-    const tiles = [
+    tilesInto($('statTiles'), [
       ['Rounds played', String(s.rounds.length)],
       ['Accuracy', total ? pct(correct / total) : '–'],
       [`Avg. time per ${MODES[mode].unit}`, s.rounds.length ? secs(sum(s.rounds, r => r.avgMs) / s.rounds.length) : '–'],
-    ];
-    $('statTiles').replaceChildren(...tiles.map(([label, value]) => {
-      const t = el('div', 'tile');
-      t.append(el('span', 'tile-value', value), el('span', 'tile-label', label));
-      return t;
-    }));
+    ]);
+    // Endless runs: the longest per difficulty, or for drills without one, the longest, how many and the average
+    const runs = s.endless || {};
+    if (MODES[mode].levels) {
+      $('endlessTitle').textContent = 'Longest endless run';
+      tilesInto($('endlessTiles'), [['easy', 'Easy'], ['medium', 'Medium'], ['hard', 'Hard']]
+        .map(([k, name]) => [name, runs[k] ? String(runs[k].best) : '–']));
+    } else {
+      const r = runs.any;
+      $('endlessTitle').textContent = 'Endless runs';
+      tilesInto($('endlessTiles'), [
+        ['Longest run', r ? String(r.best) : '–'],
+        ['Runs played', String(r ? r.runs : 0)],
+        ['Average run', r ? (r.total / r.runs).toFixed(1) : '–'],
+      ]);
+    }
   }
 
   function renderCharts(s) {
@@ -334,7 +351,8 @@
   function open() {
     const all = App.readStats();
     if (!mode) {
-      const last = m => (all[m].rounds.length ? all[m].rounds[all[m].rounds.length - 1].at : 0);
+      const last = m => Math.max(all[m].rounds.length ? all[m].rounds[all[m].rounds.length - 1].at : 0,
+        ...Object.values(all[m].endless || {}).map(r => r.last || 0));
       mode = Object.keys(MODES).sort((a, b) => last(b) - last(a))[0];
     }
     App.show('stats');

@@ -34,6 +34,7 @@
     s => Array.isArray(s.intervals) && Array.isArray(s.dirs) && COUNTS.includes(s.count));
   settings.intervals = settings.intervals.filter(id => id in BY_ID);
   settings.dirs = settings.dirs.filter(id => DIRS.some(d => d.id === id));
+  settings.endless = settings.endless === true;
   const save = () => App.saveSettings(KEY, settings);
 
   const ivGrid = $('ivGrid'), dirGroup = $('dirGroup'), countGroup = $('ivCountGroup');
@@ -46,6 +47,8 @@
     return order.filter(x => on.has(x));
   }
 
+  const syncCount = App.countPicker(countGroup, COUNTS, settings, () => { save(); syncSetup(); }, 'ivcount');
+
   function buildSetup() {
     ivGrid.innerHTML = INTERVALS.map(iv => `
       <button type="button" class="chip iv-chip" id="iv-${iv.id}" data-iv="${iv.id}" aria-pressed="false" title="${iv.name}">
@@ -54,8 +57,6 @@
       </button>`).join('');
     dirGroup.innerHTML = DIRS.map(d =>
       `<button type="button" class="chip dir-chip" id="dir-${d.id}" data-dir="${d.id}" aria-pressed="false">${d.name}</button>`).join('');
-    countGroup.innerHTML = COUNTS.map(n =>
-      `<button type="button" role="radio" id="ivcount-${n}" data-count="${n}" aria-checked="false">${n}</button>`).join('');
 
     ivGrid.addEventListener('click', e => {
       const b = e.target.closest('[data-iv]');
@@ -76,19 +77,12 @@
       save();
       syncSetup();
     });
-    countGroup.addEventListener('click', e => {
-      const b = e.target.closest('[data-count]');
-      if (!b) return;
-      settings.count = Number(b.dataset.count);
-      save();
-      syncSetup();
-    });
   }
 
   function syncSetup() {
     for (const b of ivGrid.querySelectorAll('[data-iv]')) b.setAttribute('aria-pressed', String(settings.intervals.includes(b.dataset.iv)));
     for (const b of dirGroup.querySelectorAll('[data-dir]')) b.setAttribute('aria-pressed', String(settings.dirs.includes(b.dataset.dir)));
-    for (const b of countGroup.querySelectorAll('[data-count]')) b.setAttribute('aria-checked', String(Number(b.dataset.count) === settings.count));
+    syncCount();
     allBtn.textContent = settings.intervals.length === INTERVALS.length ? 'Clear all' : 'Select all';
 
     const missing = [];
@@ -169,6 +163,7 @@
       total: settings.count,
       unit: 'interval',
       statsKey: 'intervals',
+      endless: settings.endless ? { level: 'any' } : null,
       colWidth: 84,
       choices: settings.intervals.map(id => ({ id, label: id, name: BY_ID[id].name })),
       makeQuestion, play, caption, columns,

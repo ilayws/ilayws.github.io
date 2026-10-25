@@ -23,7 +23,8 @@ window.EarGame = (() => {
    *   statsItem(q) -> { id, label } (what to track instead of the answer),
    *   noMixups, describeMisses(misses) -> text for the results screen,
    *   extra: { label, play(q) } (a second sound button once answered),
-   *   keys: { key: answerId } (computer-keyboard shortcuts)
+   *   keys: { key: answerId } (computer-keyboard shortcuts),
+   *   endless: { level, name? } (no fixed total: play until App.LIVES misses)
    * }
    */
   let round = null;
@@ -65,7 +66,14 @@ window.EarGame = (() => {
 
   function setContinue(visible) {
     continueBtn.hidden = !visible;
+    continueBtn.textContent = round && round.endless && game && game.lives <= 0 ? 'See results' : 'Continue';
     stageRow.classList.toggle('has-continue', visible);
+  }
+
+  function showProgress() {
+    const fill = $('earProgressFill'), text = $('earProgressText');
+    if (round.endless) App.setRun(fill, text, game.lives, game.results.filter(Boolean).length);
+    else App.setProgress(fill, text, game.i, game.total);
   }
 
   async function start(r) {
@@ -73,13 +81,13 @@ window.EarGame = (() => {
     const loading = App.ensureAudio();
     timers.clear();
     buildAnswers();
-    setContinue(false);
     extraBtn.hidden = true;
-    game = { q: null, i: 0, total: r.total, results: [], times: [], misses: [], locked: true };
+    game = { q: null, i: 0, total: r.endless ? Infinity : r.total, lives: App.LIVES, results: [], times: [], misses: [], locked: true };
+    setContinue(false);
     App.show('earGame');
     layoutAnswers();
     caption.textContent = 'Loading piano…';
-    App.setProgress($('earProgressFill'), $('earProgressText'), 0, game.total);
+    showProgress();
     render([null, null, null]);
     const g = game;
     await Promise.race([loading, App.wait(5000)]);
@@ -96,7 +104,7 @@ window.EarGame = (() => {
     game.locked = false;
     for (const b of answerGrid.children) b.classList.remove('ok', 'bad');
     caption.textContent = round.caption(game.q);
-    App.setProgress($('earProgressFill'), $('earProgressText'), game.i, game.total);
+    showProgress();
     draw();
     timers.later(() => {
       if (!game) return;
@@ -135,8 +143,10 @@ window.EarGame = (() => {
     if (!ok) {
       $(`ans-${id}`).classList.add('bad');
       game.misses.push([q.answerId, id]);
+      game.lives--;
       timers.later(() => game && playFresh(q), 300);   // hear the right one again
     }
+    if (round.endless) showProgress();
     draw();
     if (ok) {
       timers.later(advance, round.rightPause || RIGHT_PAUSE);
@@ -154,7 +164,7 @@ window.EarGame = (() => {
 
   function advance() {
     game.i++;
-    if (game.i >= game.total) return finish();
+    if (game.i >= game.total || (round.endless && game.lives <= 0)) return finish();
     nextQuestion();
   }
 
@@ -168,10 +178,11 @@ window.EarGame = (() => {
     const mixed = [...counts].sort((a, b) => b[1] - a[1]).map(([k, n]) => (n > 1 ? `${k} (${n}×)` : k));
     App.showResults({
       correct: game.results.filter(Boolean).length,
-      total: game.total,
+      total: game.results.length,
       times: game.times,
       unit: round.unit,
       statsKey: round.statsKey,
+      endless: round.endless || null,
       extra: round.describeMisses ? round.describeMisses(game.misses) : mixed.length ? `Mixed up: ${mixed.join(', ')}.` : '',
       review: null,
       onAgain: round.onAgain,

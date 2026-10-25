@@ -754,3 +754,25 @@ button { font: inherit; color: inherit; }
 /* ---------- Intonation ---------- */
 .answer-grid[data-kind="intonation"] { max-width: 440px; }
 .answer-grid[data-kind="intonation"] .answer-btn { height: clamp(52px, 9vh, 76px); font-size: 20px; }
+
+/* ---------- Endless runs ---------- */
+.segmented .endless-opt { flex: 1.7; display: inline-flex; align-items: center; justify-content: center; gap: 5px; }
+.endless-opt > span:first-child { font-size: 1.15em; line-height: 1; }
+/* Half-width pickers on phones: just the ∞ */
+@media (max-width: 520px) { .split-row .endless-word { display: none; } .split-row .endless-opt { flex: 1; } }
+
+.progress .hearts { display: none; }
+.progress.endless .hearts { display: flex; gap: 4px; }
+.progress.endless .bar { visibility: hidden; }
+.heart { display: block; fill: var(--bad); transition: fill .25s, transform .25s; }
+.heart.lost { fill: var(--track); transform: scale(0.82); }
+
+.endless-block { display: flex; flex-direction: column; gap: 6px; }
+
+/* Progressions: two sound buttons; on phones the caption gets its own line */
+@media (max-width: 520px) {
+  #progGame .stage-row { flex-wrap: wrap; row-gap: 6px; }
+  #progGame .caption { flex-basis: 100%; }
+  #progGame .stage-actions { flex: 1; }
+  #progGame .stage-actions .btn { flex: 1; justify-content: center; }
+}

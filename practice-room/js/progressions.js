@@ -155,6 +155,7 @@
   const settings = App.loadSettings(KEY, { level: 'easy', count: 5, keyChord: true },
     s => s.level in LEVELS && COUNTS.includes(s.count));
   settings.keyChord = settings.keyChord !== false;
+  settings.endless = settings.endless === true;
   const save = () => App.saveSettings(KEY, settings);
 
   // ---------- Voicing ----------
@@ -215,6 +216,7 @@
 
   // ---------- Setup ----------
   const levelGrid = $('pLevelGrid'), countGroup = $('pCountGroup'), chordToggle = $('pKeyChordToggle');
+  const syncCount = App.countPicker(countGroup, COUNTS, settings, () => { save(); syncSetup(); }, 'pcount');
 
   function buildSetup() {
     levelGrid.innerHTML = Object.entries(LEVELS).map(([id, L]) => `
@@ -223,19 +225,10 @@
         <span class="level-notes">${L.list.length} progressions</span>
         <span class="level-desc">${L.desc}</span>
       </button>`).join('');
-    countGroup.innerHTML = COUNTS.map(n =>
-      `<button type="button" role="radio" id="pcount-${n}" data-count="${n}" aria-checked="false">${n}</button>`).join('');
     levelGrid.addEventListener('click', e => {
       const b = e.target.closest('[data-level]');
       if (!b) return;
       settings.level = b.dataset.level;
-      save();
-      syncSetup();
-    });
-    countGroup.addEventListener('click', e => {
-      const b = e.target.closest('[data-count]');
-      if (!b) return;
-      settings.count = Number(b.dataset.count);
       save();
       syncSetup();
     });
@@ -248,7 +241,7 @@
 
   function syncSetup() {
     for (const b of levelGrid.querySelectorAll('[data-level]')) b.setAttribute('aria-checked', String(b.dataset.level === settings.level));
-    for (const b of countGroup.querySelectorAll('[data-count]')) b.setAttribute('aria-checked', String(Number(b.dataset.count) === settings.count));
+    syncCount();
     chordToggle.setAttribute('aria-checked', String(settings.keyChord));
   }
 
@@ -258,19 +251,28 @@
   const timers = App.makeTimers();
   let game = null;
 
+  function playChord(notes, at, dur) {
+    const vol = 1.2 / Math.sqrt(notes.length);
+    for (const n of notes) App.play(n.midi, at, vol, dur);
+  }
+
   function playProgression(withHome) {
     const { q, level } = game;
     App.stopAll();
     let t = 0;
-    const playChord = (notes, at, dur) => {
-      const vol = 1.2 / Math.sqrt(notes.length);
-      for (const n of notes) App.play(n.midi, at, vol, dur);
-    };
     if (withHome && settings.keyChord) {
       playChord(q.home, 0, 1.0);
       t = 1.7;
     }
     q.chords.forEach((notes, i) => playChord(notes, t + i * level.beat, level.beat * 0.92));
+  }
+
+  // The key's home chord on its own, as a reference
+  function playHome() {
+    App.ensureAudio();
+    if (!game || !game.q) return;
+    App.stopAll();
+    playChord(game.q.home, 0, 1.4);
   }
 
   function buildPad(L) {
@@ -285,11 +287,12 @@
     const loading = App.ensureAudio();
     timers.clear();
     const level = LEVELS[settings.level];
-    game = { level, i: 0, total: settings.count, correct: 0, chords: 0, perfect: 0, times: [], q: null, phase: 'loading', input: [] };
+    const endless = settings.endless;
+    game = { level, endless, lives: App.LIVES, i: 0, total: endless ? Infinity : settings.count, correct: 0, chords: 0, perfect: 0, times: [], q: null, phase: 'loading', input: [] };
     buildPad(level);
     App.show('progGame');
     caption.textContent = 'Loading piano…';
-    App.setProgress($('pProgressFill'), $('pProgressText'), 0, game.total);
+    showProgress();
     update();
     const g = game;
     await Promise.race([loading, App.wait(5000)]);
@@ -301,7 +304,7 @@
     const q = makeQuestion(game.level, game.q);
     Object.assign(game, { q, input: [], phase: 'input', start: 0 });
     caption.textContent = `${q.keyName.split(' ')[1] === 'minor' ? 'Minor' : 'Major'} key · ${q.chords.length} chords`;
-    App.setProgress($('pProgressFill'), $('pProgressText'), game.i, game.total);
+    showProgress();
     update();
     draw(true);
     timers.later(() => {
@@ -311,12 +314,19 @@
     }, 300);
   }
 
+  function showProgress() {
+    if (game.endless) App.setRun($('pProgressFill'), $('pProgressText'), game.lives, game.perfect);
+    else App.setProgress($('pProgressFill'), $('pProgressText'), game.i, game.total);
+  }
+  const isLast = () => (game.endless ? game.lives <= 0 : game.i + 1 >= game.total);
+
   function update() {
     const n = game.q ? game.q.chords.length : 0;
+    $('pHome').disabled = !game.q;
     $('pDelete').disabled = game.phase !== 'input' || !game.input.length;
     for (const b of pad.querySelectorAll('.pad-btn')) b.disabled = game.phase !== 'input';
     if (game.phase === 'review') {
-      confirmBtn.textContent = game.i + 1 >= game.total ? 'See results' : 'Next progression';
+      confirmBtn.textContent = isLast() ? 'See results' : 'Next progression';
       confirmBtn.disabled = false;
     } else {
       confirmBtn.textContent = 'Confirm';
@@ -381,6 +391,8 @@
     game.correct += right;
     game.chords += n;
     if (right === n) game.perfect++;
+    else game.lives--;
+    if (game.endless) showProgress();
     caption.textContent = `${q.prog.name} · ${q.prog.style} · ${q.keyName}`;
     update();
     draw();
@@ -388,20 +400,24 @@
   }
 
   function advance() {
+    const last = isLast();
     game.i++;
-    if (game.i >= game.total) return finish();
+    if (last) return finish();
     next();
   }
 
   function finish() {
     const g = game;
     App.showResults({
-      correct: g.correct,
-      total: g.chords,
+      correct: g.endless ? g.perfect : g.correct,
+      total: g.endless ? g.i : g.chords,
       times: g.times,
       unit: 'progression',
       statsKey: 'progressions',
-      summary: `${g.correct} of ${g.chords} chords correct · ${g.perfect} of ${g.total} progressions perfect.`,
+      endless: g.endless ? { level: settings.level, name: g.level.name } : null,
+      summary: g.endless
+        ? `${g.perfect} perfect ${g.perfect === 1 ? 'progression' : 'progressions'} before ${App.LIVES} misses · ${g.correct} of ${g.chords} chords correct.`
+        : `${g.correct} of ${g.chords} chords correct · ${g.perfect} of ${g.total} progressions perfect.`,
       review: null,
       onAgain: start,
       onSettings: openSetup,
@@ -422,6 +438,7 @@
   $('pStartBtn').addEventListener('click', start);
   $('pQuitBtn').addEventListener('click', openSetup);
   $('pReplay').addEventListener('click', () => { App.ensureAudio(); if (game && game.q) playProgression(false); });
+  $('pHome').addEventListener('click', playHome);
   $('pDelete').addEventListener('click', removeLast);
   confirmBtn.addEventListener('click', confirm);
   pad.addEventListener('click', e => {
@@ -435,6 +452,7 @@
     if (e.key === 'Enter') { e.preventDefault(); return confirm(); }
     if (e.key === 'Backspace') { e.preventDefault(); return removeLast(); }
     if (e.key === ' ') { e.preventDefault(); if (game && game.q) playProgression(false); }
+    if (e.key === 'h' || e.key === 'H') playHome();
   });
 
   App.watchStage(stage, () => { if (App.current() === 'progGame') draw(true); });

@@ -34,6 +34,7 @@
   const settings = App.loadSettings(KEY, { intervals: ['M3', 'P4', 'P5', 'P8'], level: 'easy', tuning: 'equal', count: 10 },
     s => Array.isArray(s.intervals) && s.level in LEVELS && s.tuning in TUNINGS && COUNTS.includes(s.count));
   settings.intervals = settings.intervals.filter(id => id in BY_ID);
+  settings.endless = settings.endless === true;
   const save = () => App.saveSettings(KEY, settings);
 
   const cents = ([n, d]) => 1200 * Math.log2(n / d);
@@ -41,6 +42,8 @@
   // ---------- Setup ----------
   const ivGrid = $('inIvGrid'), levelGrid = $('inLevelGrid'), tuningGroup = $('inTuningGroup'), countGroup = $('inCountGroup');
   const startBtn = $('inStartBtn'), hint = $('inHint'), allBtn = $('inAll');
+
+  const syncCount = App.countPicker(countGroup, COUNTS, settings, () => { save(); syncSetup(); }, 'incount');
 
   function buildSetup() {
     ivGrid.innerHTML = INTERVALS.map(iv => `
@@ -55,8 +58,6 @@
       </button>`).join('');
     tuningGroup.innerHTML = Object.entries(TUNINGS).map(([id, name]) =>
       `<button type="button" role="radio" id="tuning-${id}" data-tuning="${id}" aria-checked="false">${name}</button>`).join('');
-    countGroup.innerHTML = COUNTS.map(n =>
-      `<button type="button" role="radio" id="incount-${n}" data-count="${n}" aria-checked="false">${n}</button>`).join('');
 
     ivGrid.addEventListener('click', e => {
       const b = e.target.closest('[data-iv]');
@@ -88,7 +89,7 @@
     for (const b of ivGrid.querySelectorAll('[data-iv]')) b.setAttribute('aria-pressed', String(settings.intervals.includes(b.dataset.iv)));
     for (const b of levelGrid.querySelectorAll('[data-level]')) b.setAttribute('aria-checked', String(b.dataset.level === settings.level));
     for (const b of tuningGroup.querySelectorAll('[data-tuning]')) b.setAttribute('aria-checked', String(b.dataset.tuning === settings.tuning));
-    for (const b of countGroup.querySelectorAll('[data-count]')) b.setAttribute('aria-checked', String(Number(b.dataset.count) === settings.count));
+    syncCount();
     allBtn.textContent = settings.intervals.length === INTERVALS.length ? 'Clear all' : 'Select all';
     startBtn.disabled = !settings.intervals.length;
     hint.hidden = !!settings.intervals.length;
@@ -157,6 +158,7 @@
       total: settings.count,
       unit: 'interval',
       statsKey: 'intonation',
+      endless: settings.endless ? { level: settings.level, name: LEVELS[settings.level].name } : null,
       colWidth: 96,
       sublabels: true,
       rightPause: 1600,
