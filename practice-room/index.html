@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,500;6..96,700&family=Figtree:wght@400;500;600;700&family=Noto+Music&display=swap">
-<link rel="stylesheet" href="styles.css?v=9833420463">
+<link rel="stylesheet" href="styles.css?v=9ef81c47e7">
 </head>
 <body>
 <main class="app">
@@ -72,6 +72,14 @@
         <span class="mode-text">
           <span class="mode-name">Intonation</span>
           <span class="mode-desc">Is the top note flat or sharp?</span>
+        </span>
+        <svg class="chev" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <button type="button" class="mode-card" id="openSinging">
+        <span class="mode-art"><svg class="mic" viewBox="0 0 48 48" aria-hidden="true"><rect x="18" y="5" width="12" height="22" rx="6" class="mic-head"/><path d="M12 22a12 12 0 0 0 24 0M24 34v8M17 43h14" class="mic-stand"/><path d="M39 13a8 8 0 0 1 0 10M42.5 9.5a13 13 0 0 1 0 17" class="fork-wave"/></svg></span>
+        <span class="mode-text">
+          <span class="mode-name">Interval Singing</span>
+          <span class="mode-desc">Hear one note, sing the other.</span>
         </span>
         <svg class="chev" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </button>
@@ -485,6 +493,102 @@
     </div>
   </section>
 
+  <!-- Interval Singing: setup -->
+  <section id="singSetup" class="screen setup" hidden>
+    <div class="setup-head">
+      <button type="button" class="icon-btn" data-hub aria-label="Back to all drills">
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <div>
+        <h1 class="setup-title">Interval Singing</h1>
+        <p class="setup-sub">Hear the first note, then sing the second one into your microphone.</p>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="label-row">
+        <h2 class="label">Intervals</h2>
+        <button type="button" class="text-btn" id="siAll">Select all</button>
+      </div>
+      <div class="iv-grid" id="siIvGrid"></div>
+    </div>
+
+    <div class="split-row">
+      <div class="field">
+        <h2 class="label">Direction</h2>
+        <div class="dir-row" id="siDirGroup"></div>
+      </div>
+      <div class="field">
+        <h2 class="label" id="siVoiceLabel">Your voice</h2>
+        <div class="segmented" id="siVoiceGroup" role="radiogroup" aria-labelledby="siVoiceLabel"></div>
+      </div>
+    </div>
+
+    <div class="field">
+      <h2 class="label" id="siLevelLabel">Difficulty</h2>
+      <div class="level-grid" id="siLevelGrid" role="radiogroup" aria-labelledby="siLevelLabel"></div>
+    </div>
+
+    <div class="field">
+      <h2 class="label" id="siCountLabel">Intervals per round</h2>
+      <div class="segmented" id="siCountGroup" role="radiogroup" aria-labelledby="siCountLabel"></div>
+    </div>
+
+    <div class="field">
+      <button type="button" id="siStartBtn" class="btn primary">Start</button>
+      <p class="hint" id="siHint" hidden></p>
+    </div>
+  </section>
+
+  <!-- Interval Singing: game -->
+  <section id="singGame" class="screen game" hidden>
+    <div class="topbar">
+      <button type="button" id="siQuitBtn" class="icon-btn" aria-label="Stop and go back">
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+      </button>
+      <div class="progress">
+        <div class="bar"><span id="siProgressFill"></span></div>
+        <span class="count" id="siProgressText">1 / 10</span>
+      </div>
+    </div>
+
+    <div class="stage" id="siStage">
+      <div class="staff-card grand-card" id="siCard">
+        <div class="grand-wrap" id="siGrandWrap">
+          <svg id="siGrand" class="staff" role="img" aria-label="Grand staff showing the first note"></svg>
+        </div>
+        <div class="stage-row" id="siStageRow">
+          <span class="caption" id="siCaption"></span>
+          <div class="stage-actions">
+            <button type="button" class="btn ghost" id="siReplay" aria-label="Hear the first note again">
+              <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+              <span class="btn-label">Hear again</span>
+            </button>
+            <button type="button" class="btn ghost" id="siBoth" hidden>Hear both</button>
+            <button type="button" class="btn primary small" id="siNext" hidden>Continue</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sing-panel" id="siPanel" data-state="wait">
+      <div class="sing-readout">
+        <span class="sing-status" id="siStatus" aria-live="polite"></span>
+        <span class="sing-cents" id="siCents"></span>
+      </div>
+      <div class="sing-scale" id="siScale" aria-hidden="true">
+        <span class="sing-zone" id="siZone"></span>
+        <span class="sing-mid"></span>
+        <span class="sing-mark" id="siMark"></span>
+        <span class="sing-end left">−50¢ flat</span>
+        <span class="sing-end right">sharp +50¢</span>
+      </div>
+      <div class="sing-meter" aria-hidden="true"><span class="sing-level" id="siLevel"></span><span class="sing-hold" id="siHold"></span></div>
+      <button type="button" class="btn secondary" id="siSkip">Skip</button>
+    </div>
+    <p class="keys-hint">Space hears the first note again · S skips · Enter continues after a miss</p>
+  </section>
+
   <!-- Perfect Pitch: setup -->
   <section id="pitchSetup" class="screen setup" hidden>
     <div class="setup-head">
@@ -639,6 +743,7 @@
       <button type="button" role="radio" data-view="progress">Progress</button>
       <button type="button" role="radio" data-view="map">By note</button>
       <button type="button" role="radio" data-view="mixups">Mix-ups</button>
+      <button type="button" role="radio" data-view="tuning">Tuning</button>
     </div>
 
     <div class="stats-body" id="statsBody">
@@ -671,6 +776,12 @@
           <span class="legend-faint">faded: under 3 tries</span>
         </div>
         <div class="best-worst" id="bestWorst"></div>
+      </section>
+
+      <section class="stats-panel" data-panel="tuning">
+        <h3 class="panel-title">Tuning, by note</h3>
+        <div class="tiles" id="tuneTiles"></div>
+        <div class="tune-list" id="tuneList"></div>
       </section>
 
       <section class="stats-panel" data-panel="mixups">
@@ -712,7 +823,7 @@
   </section>
 
 </main>
-<script src="js/core.js?v=33877c4100"></script>
+<script src="js/core.js?v=2da64dd018"></script>
 <script src="js/clefs.js?v=877e4ceba8"></script>
 <script src="js/ear-game.js?v=f82140ca5a"></script>
 <script src="js/intervals.js?v=ddc6b0736f"></script>
@@ -721,9 +832,10 @@
 <script src="js/progressions.js?v=2f28883563"></script>
 <script src="js/intonation.js?v=31f9d16a67"></script>
 <script src="js/pitch.js?v=2cdbb0c5dd"></script>
+<script src="js/singing.js?v=8ce27e0fdc"></script>
 <script src="js/standards-data.js?v=fe4c8ab512"></script>
 <script src="js/standards.js?v=1da5b05235"></script>
-<script src="js/stats.js?v=5763598e71"></script>
-<script src="js/main.js?v=1a531ede97"></script>
+<script src="js/stats.js?v=2ce4dc6add"></script>
+<script src="js/main.js?v=ed42a7426a"></script>
 </body>
 </html>

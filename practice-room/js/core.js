@@ -59,7 +59,7 @@ window.App = (() => {
 
   // ---------- Screens ----------
   let screen = 'hub';
-  const GAME_SCREENS = new Set(['clefsGame', 'earGame', 'melodyGame', 'progGame', 'pitchGame']);
+  const GAME_SCREENS = new Set(['clefsGame', 'earGame', 'melodyGame', 'progGame', 'pitchGame', 'singGame']);
   const showHooks = [];
   function show(name) {
     if (GAME_SCREENS.has(screen) && name !== screen) stopAll();   // leaving a drill silences it
@@ -545,14 +545,14 @@ window.App = (() => {
   // Per drill: finished rounds (for the progress charts), per-item tallies
   // (notes, intervals, chords) and mix-ups ("answer>guess" counts).
   const STATS_KEY = 'practice.stats.v1';
-  const STATS_MODES = ['clefs', 'intervals', 'chords', 'melody', 'progressions', 'intonation', 'pitch', 'standards'];
+  const STATS_MODES = ['clefs', 'intervals', 'chords', 'melody', 'progressions', 'intonation', 'pitch', 'singing', 'standards'];
   let stats = null;
 
   function readStats() {
     if (!stats) {
       const saved = loadSettings(STATS_KEY, {}, s => typeof s === 'object');
       stats = {};
-      for (const m of STATS_MODES) stats[m] = { rounds: [], items: {}, mixups: {}, endless: {}, games: [], ...saved[m] };
+      for (const m of STATS_MODES) stats[m] = { rounds: [], items: {}, mixups: {}, endless: {}, games: [], tuning: {}, ...saved[m] };
     }
     return stats;
   }
@@ -577,6 +577,18 @@ window.App = (() => {
     const rounds = readStats()[mode].rounds;
     rounds.push({ at: Date.now(), ...round });
     if (rounds.length > 500) rounds.shift();
+    saveStats();
+  }
+  // Sung notes, per pitch class: how many cents off (+ sharp, − flat). Within ±IN_TUNE counts as in tune.
+  const IN_TUNE = 10;
+  function recordTuning(mode, id, cents) {
+    const all = readStats()[mode].tuning;
+    const t = all[id] || (all[id] = { n: 0, sum: 0, sharp: 0, flat: 0, right: 0 });
+    t.n++;
+    t.sum += Math.round(cents);
+    if (cents > IN_TUNE) t.sharp++;
+    else if (cents < -IN_TUNE) t.flat++;
+    else t.right++;
     saveStats();
   }
   // Endless runs, per difficulty ('easy' | 'medium' | 'hard', or 'any' for drills without one)
@@ -695,7 +707,7 @@ window.App = (() => {
     renderStaff, renderGrandStaff, roomFor, fitInStage, watchStage,
     ensureAudio, play, stopAll, makePiano, tapKey,
     showResults, onRedraw, boot,
-    readStats, recordItem, recordMixup, recordRound, recordEndless, recordGame, resetStats,
+    readStats, recordItem, recordMixup, recordRound, recordEndless, recordGame, recordTuning, IN_TUNE, resetStats,
     // Drawing pieces for the stats page (staff units: one step = H)
     draw: { H, line, glyph, notePath, ledgers, columnParts, trebleTop: GS_TOP },
   };

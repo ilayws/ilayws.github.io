@@ -9,6 +9,7 @@
   $('openMelody').addEventListener('click', () => Melody.open());
   $('openProgressions').addEventListener('click', () => Progressions.open());
   $('openIntonation').addEventListener('click', () => Intonation.open());
+  $('openSinging').addEventListener('click', () => Singing.open());
   $('openPitch').addEventListener('click', () => Pitch.open());
   $('openStandards').addEventListener('click', () => Standards.open());
   $('openStats').addEventListener('click', () => Stats.open());

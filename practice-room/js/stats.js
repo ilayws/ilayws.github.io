@@ -14,6 +14,7 @@
     melody:       { name: 'Melody',       unit: 'melody',                                                                          levels: true },
     progressions: { name: 'Progressions', unit: 'progression', item: 'chord',    items: 'By numeral',  source: () => window.Progressions, levels: true },
     intonation:   { name: 'Intonation',   unit: 'interval',    item: 'interval', items: 'By interval', source: () => window.Intonation,   levels: true },
+    singing:      { name: 'Singing',      unit: 'interval',    item: 'interval', items: 'By interval', source: () => window.Singing,      levels: true, tuning: true },
     pitch:        { name: 'Pitch',        unit: 'note',        item: 'note',     items: 'By note',     source: () => window.Pitch },
     standards:    { name: 'Standards',    unit: 'song',                                                                            games: true },
   };
@@ -364,8 +365,49 @@
     }), el('p', 'mix-note', 'Right answer first, then what you picked. Most frequent at the top.'));
   }
 
+  // Interval Singing: for each note name (any octave), the average cents off and which way it usually goes
+  const NOTE_NAMES = ['C', 'C♯', 'D', 'E♭', 'E', 'F', 'F♯', 'G', 'A♭', 'A', 'B♭', 'B'];
+  const signedCents = c => `${c > 0.5 ? '+' : c < -0.5 ? '−' : '±'}${Math.abs(Math.round(c))}¢`;
+  function renderTuning(s) {
+    const tuning = s.tuning || {}, all = Object.values(tuning);
+    const n = sum(all, t => t.n), tot = sum(all, t => t.sum);
+    tilesInto($('tuneTiles'), [
+      ['On average', n ? signedCents(tot / n) : '–'],
+      ['In tune', n ? pct(sum(all, t => t.right) / n) : '–'],
+      ['Notes sung', String(n)],
+    ]);
+    const box = $('tuneList');
+    if (!n) {
+      box.replaceChildren(el('p', 'chart-empty', 'Sing some intervals to see which notes you sing sharp or flat.'));
+      return;
+    }
+    const rows = NOTE_NAMES.map((name, pc) => {
+      const t = tuning[pc], r = el('div', `tune-row${!t || t.n < MIN_TRIES ? ' faint' : ''}`);
+      r.append(el('span', 'tune-name', name));
+      const bar = el('span', 'tune-bar');
+      bar.append(el('span', 'tune-zone'), el('span', 'tune-mid'));
+      if (!t) {
+        r.append(bar, el('span', 'tune-val', '–'), el('span', 'tune-usual', 'not sung yet'));
+        return r;
+      }
+      const avg = t.sum / t.n;
+      const fill = el('span', `tune-fill ${avg >= 0 ? 'sharp' : 'flat'}`);
+      const w = Math.min(50, Math.abs(avg));
+      fill.style.left = `${avg >= 0 ? 50 : 50 - w}%`;
+      fill.style.width = `${Math.max(1, w)}%`;
+      bar.append(fill);
+      // "Usually": the most common of sharp / in tune / flat
+      const ranked = [['sharp', t.sharp], ['in tune', t.right], ['flat', t.flat]].sort((a, b) => b[1] - a[1]);
+      const usual = ranked[0][1] === ranked[1][1] ? 'mixed' : `usually ${ranked[0][0]}`;
+      r.append(bar, el('span', 'tune-val', signedCents(avg)), el('span', 'tune-usual', usual));
+      r.title = `${name}: ${signedCents(avg)} on average over ${t.n} ${t.n === 1 ? 'try' : 'tries'} · ${t.sharp} sharp, ${t.right} in tune, ${t.flat} flat`;
+      return r;
+    });
+    box.replaceChildren(...rows, el('p', 'mix-note', `Average cents off on the notes you hit, in any octave: + is sharp, − is flat. In tune means within ±${App.IN_TUNE}¢.`));
+  }
+
   // ---------- Screen ----------
-  const viewsFor = m => (m === 'melody' || m === 'standards' ? ['progress'] : m === 'clefs' || m === 'intonation' ? ['progress', 'map'] : ['progress', 'map', 'mixups']);
+  const viewsFor = m => (m === 'melody' || m === 'standards' ? ['progress'] : m === 'singing' ? ['progress', 'map', 'tuning'] : m === 'clefs' || m === 'intonation' ? ['progress', 'map'] : ['progress', 'map', 'mixups']);
 
   function render() {
     const s = App.readStats()[mode];
@@ -386,6 +428,7 @@
     renderCharts(s);
     if (views.includes('map')) renderMap(s);
     if (views.includes('mixups')) renderMixups(s);
+    if (views.includes('tuning')) renderTuning(s);
   }
 
   function open() {
