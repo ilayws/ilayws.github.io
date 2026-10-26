@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,500;6..96,700&family=Figtree:wght@400;500;600;700&family=Noto+Music&display=swap">
-<link rel="stylesheet" href="styles.css?v=44ee22ad2e">
+<link rel="stylesheet" href="styles.css?v=9833420463">
 </head>
 <body>
 <main class="app">
@@ -72,6 +72,14 @@
         <span class="mode-text">
           <span class="mode-name">Intonation</span>
           <span class="mode-desc">Is the top note flat or sharp?</span>
+        </span>
+        <svg class="chev" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <button type="button" class="mode-card" id="openPitch">
+        <span class="mode-art"><svg class="fork" viewBox="0 0 48 48" aria-hidden="true"><path d="M14 5v15a6 6 0 0 0 12 0V5" class="fork-body"/><path d="M20 26v17" class="fork-stem"/><path d="M31 11a8 8 0 0 1 0 11M35 7a13.5 13.5 0 0 1 0 19" class="fork-wave"/></svg></span>
+        <span class="mode-text">
+          <span class="mode-name">Perfect Pitch</span>
+          <span class="mode-desc">Name a note with no reference.</span>
         </span>
         <svg class="chev" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </button>
@@ -477,6 +485,69 @@
     </div>
   </section>
 
+  <!-- Perfect Pitch: setup -->
+  <section id="pitchSetup" class="screen setup" hidden>
+    <div class="setup-head">
+      <button type="button" class="icon-btn" data-hub aria-label="Back to all drills">
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <div>
+        <h1 class="setup-title">Perfect Pitch</h1>
+        <p class="setup-sub">Hear a single note with nothing to compare it to, then find it on the keyboard.</p>
+      </div>
+    </div>
+
+    <ul class="sg-rules">
+      <li><strong>Any of the 12 notes,</strong> from C3 up to B5.</li>
+      <li><strong>Any octave counts:</strong> the keyboard has one octave.</li>
+      <li>Hear the note again as often as you like. After a miss, play any keys to compare.</li>
+    </ul>
+
+    <div class="field">
+      <h2 class="label" id="ppCountLabel">Notes per round</h2>
+      <div class="segmented" id="ppCountGroup" role="radiogroup" aria-labelledby="ppCountLabel"></div>
+    </div>
+
+    <div class="field">
+      <button type="button" id="ppStartBtn" class="btn primary">Start</button>
+    </div>
+  </section>
+
+  <!-- Perfect Pitch: game -->
+  <section id="pitchGame" class="screen game" hidden>
+    <div class="topbar">
+      <button type="button" id="ppQuitBtn" class="icon-btn" aria-label="Stop and go back">
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+      </button>
+      <div class="progress">
+        <div class="bar"><span id="ppProgressFill"></span></div>
+        <span class="count" id="ppProgressText">1 / 10</span>
+      </div>
+    </div>
+
+    <div class="stage">
+      <div class="staff-card pp-card" id="ppCard" data-state="listen">
+        <span class="pp-prompt" id="ppPrompt">Which note is this?</span>
+        <span class="pp-name" id="ppName" aria-live="polite"></span>
+        <span class="pp-sub" id="ppSub"></span>
+        <div class="pp-actions">
+          <button type="button" class="btn ghost" id="ppReplay">
+            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            Hear again
+          </button>
+          <button type="button" class="btn primary small" id="ppNext" hidden>Continue</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="piano-wrap">
+      <div class="piano">
+        <div class="keys" id="ppKeys"></div>
+      </div>
+      <p class="keys-hint">Keys A–J and W E T Y U play notes · Space hears it again · Enter continues after a miss</p>
+    </div>
+  </section>
+
   <!-- Standard Guesser: setup -->
   <section id="standardsSetup" class="screen setup" hidden>
     <div class="setup-head">
@@ -641,7 +712,7 @@
   </section>
 
 </main>
-<script src="js/core.js?v=281732e89a"></script>
+<script src="js/core.js?v=33877c4100"></script>
 <script src="js/clefs.js?v=877e4ceba8"></script>
 <script src="js/ear-game.js?v=f82140ca5a"></script>
 <script src="js/intervals.js?v=ddc6b0736f"></script>
@@ -649,9 +720,10 @@
 <script src="js/melody.js?v=8905745fb2"></script>
 <script src="js/progressions.js?v=2f28883563"></script>
 <script src="js/intonation.js?v=31f9d16a67"></script>
+<script src="js/pitch.js?v=2cdbb0c5dd"></script>
 <script src="js/standards-data.js?v=fe4c8ab512"></script>
 <script src="js/standards.js?v=1da5b05235"></script>
-<script src="js/stats.js?v=705db719cf"></script>
-<script src="js/main.js?v=95d8a82b3b"></script>
+<script src="js/stats.js?v=5763598e71"></script>
+<script src="js/main.js?v=1a531ede97"></script>
 </body>
 </html>

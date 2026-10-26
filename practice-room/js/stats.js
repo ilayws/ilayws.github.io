@@ -14,6 +14,7 @@
     melody:       { name: 'Melody',       unit: 'melody',                                                                          levels: true },
     progressions: { name: 'Progressions', unit: 'progression', item: 'chord',    items: 'By numeral',  source: () => window.Progressions, levels: true },
     intonation:   { name: 'Intonation',   unit: 'interval',    item: 'interval', items: 'By interval', source: () => window.Intonation,   levels: true },
+    pitch:        { name: 'Pitch',        unit: 'note',        item: 'note',     items: 'By note',     source: () => window.Pitch },
     standards:    { name: 'Standards',    unit: 'song',                                                                            games: true },
   };
   const labelFor = (m, id) => {
@@ -153,7 +154,7 @@
     const mod = MODES[kind].source();
     const labelOf = id => labelFor(kind, id);
     const ids = mod.order.filter(id => items[id]);
-    const colW = kind === 'intervals' || kind === 'intonation' ? 46 : 58;
+    const colW = kind === 'chords' || kind === 'progressions' ? 58 : 46;
     const top = draw.trebleTop, bottom = top + 8 * H;
     const startX = 10 + CLEFS.treble.width + 14;
     const W = startX + ids.length * colW + 12;

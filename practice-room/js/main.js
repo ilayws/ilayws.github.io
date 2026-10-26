@@ -9,6 +9,7 @@
   $('openMelody').addEventListener('click', () => Melody.open());
   $('openProgressions').addEventListener('click', () => Progressions.open());
   $('openIntonation').addEventListener('click', () => Intonation.open());
+  $('openPitch').addEventListener('click', () => Pitch.open());
   $('openStandards').addEventListener('click', () => Standards.open());
   $('openStats').addEventListener('click', () => Stats.open());
   for (const b of document.querySelectorAll('[data-hub]')) b.addEventListener('click', () => App.show('hub'));

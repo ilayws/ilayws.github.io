@@ -160,12 +160,17 @@ button { font: inherit; color: inherit; }
   .mode-desc { font-size: 14px; line-height: 1.35; }
   .brand-row { margin-top: 6px; }
 }
-/* Seven drills in one column: tighter cards on phones */
+/* Eight drills in one column: tighter cards on phones */
 @media (max-width: 759px) {
   .mode-list { gap: 7px; }
   .mode-card { padding-block: clamp(6px, 1vh, 10px); }
   .mode-art { width: clamp(38px, 6vh, 80px); height: clamp(38px, 6vh, 80px); }
   .mode-text { gap: 0; }
+}
+@media (max-width: 759px) and (max-height: 760px) {
+  .mode-list { gap: 6px; }
+  .mode-name { font-size: 20px; }
+  .mode-desc { font-size: 13.5px; line-height: 1.25; }
 }
 
 .setup-head { display: flex; align-items: flex-start; gap: 14px; }
@@ -647,7 +652,7 @@ button { font: inherit; color: inherit; }
   .stats-views { display: none !important; }
   .stats-body .stats-panel { display: flex !important; }
   .stats-body[data-mode="clefs"], .stats-body[data-mode="intonation"] { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
-  .stats-body[data-mode="intervals"], .stats-body[data-mode="chords"], .stats-body[data-mode="progressions"] { grid-template-columns: minmax(0, 1.05fr) minmax(0, 1.2fr) minmax(0, 0.8fr); }
+  .stats-body[data-mode="intervals"], .stats-body[data-mode="chords"], .stats-body[data-mode="progressions"], .stats-body[data-mode="pitch"] { grid-template-columns: minmax(0, 1.05fr) minmax(0, 1.2fr) minmax(0, 0.8fr); }
   .stats-body[data-mode="melody"] .stats-panel:not([data-panel="progress"]),
   .stats-body[data-mode="standards"] .stats-panel:not([data-panel="progress"]),
   .stats-body[data-mode="clefs"] .stats-panel[data-panel="mixups"],
@@ -857,3 +862,25 @@ button { font: inherit; color: inherit; }
 .sg-actions { display: flex; gap: 10px; }
 .sg-actions .btn { flex: 1; }
 @media (prefers-reduced-motion: reduce) { .sg-card.playing .sg-now .disc { animation: none; } }
+
+/* ---------- Perfect Pitch ---------- */
+.mode-art .fork { width: 76%; height: 76%; }
+.fork-body, .fork-stem { fill: none; stroke: var(--ink); stroke-linecap: round; }
+.fork-body { stroke-width: 3.4; }
+.fork-stem { stroke-width: 4; }
+.fork-wave { fill: none; stroke: var(--accent); stroke-width: 2.4; stroke-linecap: round; }
+
+.pp-card {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: clamp(2px, 0.8vh, 6px);
+  min-height: clamp(150px, 26vh, 240px);
+  padding: 16px;
+  text-align: center;
+}
+.pp-prompt { color: var(--muted); font-weight: 600; }
+.pp-card[data-state="ok"] .pp-prompt { color: var(--ok); font-size: 14px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+.pp-card[data-state="bad"] .pp-prompt { color: var(--bad); font-size: 14px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+.pp-name { font-family: var(--font-display); font-weight: 700; font-size: clamp(30px, 6.5vh, 52px); line-height: 1.1; }
+.pp-name:empty, .pp-sub:empty { display: none; }
+.pp-sub { color: var(--muted); font-size: 15px; }
+.pp-actions { display: flex; gap: 8px; margin-top: clamp(6px, 1.4vh, 12px); }
