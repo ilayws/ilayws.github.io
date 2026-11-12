@@ -360,7 +360,7 @@ footer {
 }
 
 .home .about-me .foot {
-    margin-top: 14px;
+    margin-top: 0;
     font-size: 14px;
 }
 
@@ -376,7 +376,8 @@ footer {
 }
 
 .home .menu-section {
-    margin-top: 28px;
+    margin-top: 36px;
+    margin-bottom: 40px;
 }
 
 .home .menu-section li a::after {
