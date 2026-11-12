@@ -6,6 +6,8 @@
     const ME = /wischnevsky/i;        // my name in the author lists
     const MAX_AUTHORS = 10;
     const list = document.getElementById('pubList');
+    const count = document.getElementById('pubCount');
+    const KINDS = { 'journal-article': 'Journal', preprint: 'Preprint', 'conference-paper': 'Conference', 'book-chapter': 'Chapter' };
 
     const getJSON = url => fetch(url, { headers: { Accept: 'application/json' } })
         .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); });
@@ -69,10 +71,16 @@
             li.append(t);
             const authors = authorsLine(work);
             if (authors) li.append(authors);
+            const meta = el('p', 'pub-meta');
+            const kind = KINDS[work.type];
+            if (kind) meta.append(el('span', `pub-badge ${work.type === 'journal-article' ? 'journal' : ''}`, kind));
             const year = value((work['publication-date'] || {}).year);
-            li.append(el('p', 'pub-venue', [venue(work), year].filter(Boolean).join(' · ')));
+            meta.append(el('span', 'pub-venue', [venue(work), year].filter(Boolean).join(' · ')));
+            li.append(meta);
             return li;
         }));
+        count.textContent = works.length;
+        count.hidden = false;
     }
 
     function fail() {
