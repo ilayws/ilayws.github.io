@@ -1,8 +1,8 @@
-// Publications on the home page. publications.json is refreshed from ORCID every day
-// by .github/workflows/publications.yml, so new papers show up without editing the site.
+// Publications on the home page. publications.json is refreshed from ORCID, arXiv and
+// Google Scholar by .github/workflows/publications.yml, so new papers show up on their own.
 (() => {
-    const ME = /wischnevsky/i;        // my name in the author lists
-    const MAX_AUTHORS = 10;
+    const ME = /shlush/i;             // my name in the author lists
+    const MAX_AUTHORS = 10, SHOWN_BEFORE_ME = 6;
     const list = document.getElementById('pubList');
     const count = document.getElementById('pubCount');
 
@@ -13,15 +13,20 @@
         return e;
     }
 
+    // Long lists are cut short, but always far enough to show my name
     function authorsLine(names) {
         if (!names.length) return null;
         const p = el('p', 'pub-authors');
-        const shown = names.slice(0, MAX_AUTHORS);
-        shown.forEach((name, i) => {
-            if (i) p.append(', ');
-            p.append(ME.test(name) ? el('strong', '', name) : name);
-        });
-        if (names.length > shown.length) p.append(', et al.');
+        const add = name => p.append(ME.test(name) ? el('strong', '', name) : name);
+        if (names.length <= MAX_AUTHORS) {
+            names.forEach((name, i) => { if (i) p.append(', '); add(name); });
+            return p;
+        }
+        const me = names.findIndex(n => ME.test(n));
+        const head = me >= 0 && me < MAX_AUTHORS - 1 ? MAX_AUTHORS - 1 : SHOWN_BEFORE_ME;
+        names.slice(0, head).forEach((name, i) => { if (i) p.append(', '); add(name); });
+        if (me >= head) { p.append(', …, '); add(names[me]); }
+        p.append(` et al. (${names.length} authors)`);
         return p;
     }
 
@@ -35,6 +40,11 @@
         const meta = el('p', 'pub-meta');
         if (pub.kind) meta.append(el('span', pub.kind === 'Journal' ? 'pub-badge journal' : 'pub-badge', pub.kind));
         meta.append(el('span', 'pub-venue', [pub.venue, pub.year].filter(Boolean).join(' · ')));
+        if (pub.also) {
+            const a = el('a', 'pub-also', 'arXiv');
+            a.href = pub.also; a.target = '_blank'; a.rel = 'noopener';
+            meta.append(a);
+        }
         li.append(meta);
         return li;
     }

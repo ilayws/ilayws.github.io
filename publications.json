@@ -1,5 +1,19 @@
 [
   {
+    "title": "Relating Short Range Correlated Pair Abundances to Electron-Scattering Cross Section Ratios",
+    "url": "https://arxiv.org/abs/2611.16489",
+    "authors": [
+      "Ilay Wischnevsky Shlush",
+      "Igor Korover",
+      "Eli Piasetzky"
+    ],
+    "kind": "Preprint",
+    "venue": "arXiv:2611.16489",
+    "year": "2026",
+    "date": "2026-11-12",
+    "arxiv": "2611.16489"
+  },
+  {
     "title": "New Scaling Relations for Nucleons in Three-Nucleon Short-Range Correlations",
     "url": "https://arxiv.org/abs/2611.01093",
     "authors": [
@@ -9,22 +23,8 @@
     "kind": "Preprint",
     "venue": "arXiv:2611.01093",
     "year": "2026",
-    "date": "2026-10-00"
-  },
-  {
-    "title": "Modeling short-range nucleon pair and triplet abundances in atomic nuclei",
-    "url": "https://doi.org/10.1103/cctz-56dl",
-    "authors": [
-      "I. Wischnevsky Shlush",
-      "I. Korover",
-      "E. Piasetzky",
-      "A. Denniston",
-      "R. Wagner"
-    ],
-    "kind": "Journal",
-    "venue": "Physical Review C",
-    "year": "2026",
-    "date": "2026-09-01"
+    "date": "2026-10-31",
+    "arxiv": "2611.01093"
   },
   {
     "title": "Short-range correlated pairs from nucleon density profiles as a new probe of the nuclear equation of state",
@@ -43,6 +43,65 @@
     "kind": "Preprint",
     "venue": "arXiv:2609.36733",
     "year": "2026",
-    "date": "2026-00-00"
+    "date": "2026-09-29",
+    "arxiv": "2609.36733"
+  },
+  {
+    "title": "Modeling short-range nucleon pair and triplet abundances in atomic nuclei",
+    "url": "https://doi.org/10.1103/cctz-56dl",
+    "authors": [
+      "I. Wischnevsky Shlush",
+      "I. Korover",
+      "E. Piasetzky",
+      "A. Denniston",
+      "R. Wagner"
+    ],
+    "kind": "Journal",
+    "venue": "Physical Review C",
+    "year": "2026",
+    "date": "2026-09-01",
+    "arxiv": "2512.14447",
+    "also": "https://arxiv.org/abs/2512.14447"
+  },
+  {
+    "title": "Short-range correlated pair formation and nuclear shell structure",
+    "url": "https://arxiv.org/abs/2606.07754",
+    "authors": [
+      "D. Nguyen",
+      "C. Yero",
+      "H. Szumila-Vance",
+      "F. Hauenstein",
+      "N. Swan",
+      "L. B. Weinstein",
+      "J. Kahlbow",
+      "A. Schmidt",
+      "E. Piasetzky",
+      "O. Hen",
+      "C. Ayerbe Gayoso",
+      "E. Cohen",
+      "P. Datta",
+      "A. Denniston",
+      "B. R. Devkota",
+      "M. Diefenthaler",
+      "C. Fogler",
+      "B. R. Gamage",
+      "D. Higinbotham",
+      "I. Korover",
+      "C. Morean",
+      "M. Nycz",
+      "M. Satnik",
+      "S. Seeds",
+      "P. Sharp",
+      "I. Shlush",
+      "M. Suresh",
+      "A. S. Tadepalli",
+      "R. Wagner",
+      "E. W. Wertz"
+    ],
+    "kind": "Preprint",
+    "venue": "arXiv:2606.07754",
+    "year": "2026",
+    "date": "2026-06-05",
+    "arxiv": "2606.07754"
   }
 ]

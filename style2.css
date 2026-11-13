@@ -490,6 +490,19 @@ a.pub-title:hover {
     font-style: italic;
 }
 
+.pub-also {
+    font-weight: 700;
+    color: var(--accent-soft);
+    text-decoration: none;
+    border-bottom: 1px solid rgba(255, 83, 73, 0.35);
+    transition: color 0.3s ease, border-color 0.3s ease;
+}
+
+.pub-also:hover {
+    color: #ffffff;
+    border-color: #ffffff;
+}
+
 .pub-badge {
     padding: 2px 9px;
     border-radius: 999px;
